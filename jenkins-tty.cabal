@@ -34,3 +34,5 @@ executable jenkins-tty
   hs-source-dirs:      src
   default-extensions:  OverloadedStrings
   default-language:    Haskell2010
+  ghc-options:
+    -fwarn-incomplete-patterns

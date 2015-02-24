@@ -3,10 +3,12 @@ module Jenkins.Client
   , jobStatus
   , jobBuild
   , runBuild
+  , buildLog
   ) where
 
 import qualified Data.Text as T
-import qualified Data.ByteString.Lazy.Internal as BS
+import qualified Data.ByteString.Lazy.Internal as LBS
+import qualified Data.ByteString as BS
 
 import Data.Aeson
 import Data.Maybe (catMaybes)
@@ -14,7 +16,6 @@ import Data.Maybe (catMaybes)
 import Control.Concurrent.Async
 
 import Network.HTTP.Client
-import Network.HTTP.Types (statusCode)
 
 import Jenkins.Types hiding (jobStatus)
 import qualified Jenkins.Endpoints as JEP
@@ -49,8 +50,35 @@ runBuild :: Manager
          -> IO ()
 runBuild m name mRev = do
     req <- JEP.runBuild name mRev
-    failingUnlessSuccess m req (return . const ())
+    withResponseBody m req (return . const ())
 
+buildLog :: Manager
+         -> T.Text
+         -> Maybe BuildNum
+         -> IO ()
+buildLog m name mBnum = do
+    case mBnum of
+      Just bn -> stream bn
+      Nothing -> do
+        req <- JEP.getJob name
+        handlingFailures m req $ \(JobWithBuildNums _ nums) -> do
+          case nums of
+            []    -> putStrLn "This job has no builds yet."
+            (bn:_) -> stream bn
+  where
+    stream :: BuildNum -> IO ()
+    stream buildNum = do
+      req' <- JEP.buildLog name buildNum
+      withResponse req' m consumeStream
+
+    consumeStream :: Response BodyReader -> IO ()
+    consumeStream s = do
+      chunk <- brRead . responseBody $ s
+      if BS.null chunk
+      then
+        putStrLn "done!"
+      else
+        BS.putStr chunk >> consumeStream s
 -----------------------------------------------------------------------------
 
 buildWithRev :: RawBuild -> Maybe Build
@@ -64,26 +92,20 @@ findLastBuiltRev [] = Nothing
 
 -----------------------------------------------------------------------------
 
-failingUnlessSuccess :: Manager
-                     -> Request
-                     -> (BS.ByteString -> IO b)
-                     -> IO b
-failingUnlessSuccess m req f = do
+withResponseBody :: Manager
+                 -> Request
+                 -> (LBS.ByteString -> IO b)
+                 -> IO b
+withResponseBody m req f = do
   resp <- httpLbs req m
-  let code = show . statusCode . responseStatus $ resp
-      body = responseBody resp
-  if head code /= '2'
-  then
-    fail ("Jenkins API returned unexpected status code: " ++ code)
-  else
-    f body
+  f $ responseBody resp
 
 handlingFailures :: FromJSON a => Manager
                  -> Request
                  -> (a -> IO b)
                  -> IO b
 handlingFailures m req f = do
-  failingUnlessSuccess m req $ \body -> do
+  withResponseBody m req $ \body -> do
     let eData = eitherDecode body
     failingOnLeft eData f
 

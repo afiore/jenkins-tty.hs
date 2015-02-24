@@ -33,7 +33,7 @@ decodeJobStatus s =
     "red"        -> JobFailure
     "FAILURE"    -> JobFailure
     "grey"       -> JobInProgress
-    "blue_anime" -> JobInProgres
+    "blue_anime" -> JobInProgress
     _            -> JobUnknown
 
 data Job = Job
@@ -107,6 +107,7 @@ instance FromJSON RawBuild where
       v .: "timestamp"                      <*>
       v .: "duration"                       <*>
       v .: "actions"
+  parseJSON _         = fail "Cannot parse RawBuild"
 
 ---------------------------------------------------------------------------
 

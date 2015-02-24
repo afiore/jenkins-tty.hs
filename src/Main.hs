@@ -10,6 +10,7 @@ handleCmd :: HTTP.Manager -> Command -> IO ()
 handleCmd m JobStatuses          = Jen.jobStatuses m >>= mapM_ (putStrLn . show)
 handleCmd m (JobStatus jobId)    = Jen.jobStatus m jobId >>= putStrLn . show
 handleCmd m (RunBuild jobId rev) = Jen.runBuild m jobId rev >> putStrLn "OK.."
+handleCmd m (BuildLog jobId mBn) = Jen.buildLog m jobId mBn
 
 main :: IO ()
 main = do

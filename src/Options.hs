@@ -16,6 +16,7 @@ type Rev   = Maybe T.Text
 data Command = JobStatuses
              | JobStatus JobId
              | RunBuild JobId Rev
+             | BuildLog JobId (Maybe BuildNum)
              deriving (Show, Eq)
 
 data Options = Options
@@ -32,6 +33,9 @@ jobIdParser = return . T.pack
 revParser :: String -> Maybe Rev
 revParser = pure . Just . T.pack
 
+buildNumParser :: String -> Maybe (Maybe BuildNum)
+buildNumParser = pure . Just . BuildNum . read
+
 jobStatusParser :: Parser Command
 jobStatusParser = JobStatus
   <$> argument jobIdParser ( metavar "JOB_ID" )
@@ -44,6 +48,15 @@ runBuildParser = RunBuild
                          <> help "Git revision or SHA1"
                          )
 
+buildLogParser :: Parser Command
+buildLogParser = BuildLog
+  <$> argument jobIdParser ( metavar "JOB_ID" )
+  <*> argument buildNumParser ( metavar "BUILD_NUM"
+                         <> value Nothing
+                         <> help "Build number"
+                         )
+
+
 parseOptions :: Parser Options
 parseOptions = Options
   <$> strOption ( short 's'
@@ -54,6 +67,7 @@ parseOptions = Options
         ( command "jobs" jobStatusesParserInfo
         <> command "job" jobStatusParserInfo
         <> command "build" runBuildParserInfo
+        <> command "log" buildLogParserInfo
         )
 
 jobStatusesParserInfo :: ParserInfo Command
@@ -67,3 +81,7 @@ jobStatusParserInfo =
 runBuildParserInfo :: ParserInfo Command
 runBuildParserInfo =
   parserInfo runBuildParser "build a given job"
+
+buildLogParserInfo :: ParserInfo Command
+buildLogParserInfo =
+  parserInfo buildLogParser "stream build log to standard output"

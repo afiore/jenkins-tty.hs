@@ -3,6 +3,7 @@ module Jenkins.Endpoints
   , getJob
   , getBuild
   , runBuild
+  , buildLog
   ) where
 
 import qualified Data.Text as T
@@ -34,13 +35,19 @@ runBuild job rev = do
   req <- parseUrl path'
   return (setQueryString q req) { method = methodPost }
 
+buildLog :: T.Text -> BuildNum -> IO Request
+buildLog job (BuildNum n) = do
+  let q = [("start", Just "0")]
+      u = apiUrl ("job" </> T.unpack job </> show n </> "logText" </> "progressiveText")
+  req <- parseUrl u
+  return $ setQueryString q req
 ------------------------------------------------------------
 
 defaultHost :: String
 defaultHost = "http://localhost:8080"
 
 apiSuffix :: String
-apiSuffix = "api/json"
+apiSuffix = "api" </> "json"
 
 apiUrl :: String -> String
 apiUrl p = defaultHost </> p </> apiSuffix
