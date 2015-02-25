@@ -20,8 +20,8 @@ data Command = JobStatuses
              deriving (Show, Eq)
 
 data Options = Options
-             { optBaseUri :: String
-             , optCommand :: Command
+             { optsBaseUri :: String
+             , optsCommand :: Command
              } deriving (Show, Eq)
 
 parserInfo :: Parser Command -> String -> ParserInfo Command
