@@ -24,6 +24,7 @@ executable jenkins-tty
                        bytestring,
                        aeson,
                        async,
+                       mtl,
                        http-client,
                        http-types,
                        filepath,
