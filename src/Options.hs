@@ -27,35 +27,34 @@ data Options = Options
 parserInfo :: Parser Command -> String -> ParserInfo Command
 parserInfo cmd desc = info (helper <*> cmd) (progDesc desc)
 
-jobIdParser :: String -> Maybe JobId
+jobIdParser :: String -> ReadM JobId
 jobIdParser = return . T.pack
 
-revParser :: String -> Maybe Rev
+revParser :: String -> ReadM Rev
 revParser = pure . Just . T.pack
 
-buildNumParser :: String -> Maybe (Maybe BuildNum)
+buildNumParser :: String -> ReadM (Maybe BuildNum)
 buildNumParser = pure . Just . BuildNum . read
 
 jobStatusParser :: Parser Command
 jobStatusParser = JobStatus
-  <$> argument jobIdParser ( metavar "JOB_ID" )
+  <$> argument (str >>= jobIdParser) ( metavar "JOB_ID" )
 
 runBuildParser :: Parser Command
 runBuildParser = RunBuild
-  <$> argument jobIdParser ( metavar "JOB_ID" )
-  <*> argument revParser ( metavar "GIT_REV"
-                         <> value Nothing
-                         <> help "Git revision or SHA1"
-                         )
+  <$> argument (str >>= jobIdParser) ( metavar "JOB_ID" )
+  <*> argument (str >>= revParser) ( metavar "GIT_REV"
+                                   <> value Nothing
+                                   <> help "Git revision or SHA1"
+                                   )
 
 buildLogParser :: Parser Command
 buildLogParser = BuildLog
-  <$> argument jobIdParser ( metavar "JOB_ID" )
-  <*> argument buildNumParser ( metavar "BUILD_NUM"
-                         <> value Nothing
-                         <> help "Build number"
-                         )
-
+  <$> argument (str >>= jobIdParser) ( metavar "JOB_ID" )
+  <*> argument (str >>= buildNumParser) ( metavar "BUILD_NUM"
+                                        <> value Nothing
+                                        <> help "Build number"
+                                        )
 
 parseOptions :: Parser Options
 parseOptions = Options
