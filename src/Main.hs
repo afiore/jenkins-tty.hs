@@ -4,6 +4,7 @@ import Options.Applicative
 
 import qualified Jenkins.Client as Jen
 import qualified Network.HTTP.Client as HTTP
+import Jenkins.Blah
 import Options
 
 handleCmd :: HTTP.Manager -> Command -> IO ()
@@ -14,6 +15,10 @@ handleCmd m (BuildLog jobId mBn) = Jen.buildLog m jobId mBn
 
 main :: IO ()
 main = do
+  doMonadTrans
+
+goodMain :: IO ()
+goodMain = do
     opts <- execParser handleOpts
     HTTP.withManager HTTP.defaultManagerSettings $ \m -> do
       handleCmd m $ optCommand opts
