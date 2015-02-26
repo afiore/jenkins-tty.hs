@@ -10,8 +10,9 @@ import qualified Data.Text as T
 
 import Jenkins.Types
 
-type JobId = T.Text
-type Rev   = Maybe T.Text
+type JobId     = T.Text
+type Rev       = Maybe T.Text
+type AuthCreds = (T.Text, T.Text)
 
 data Command = JobStatuses
              | JobStatus JobId
@@ -21,6 +22,7 @@ data Command = JobStatuses
 
 data Options = Options
              { optsBaseUri :: String
+             , optsAuth    :: Maybe AuthCreds
              , optsCommand :: Command
              } deriving (Show, Eq)
 
@@ -32,6 +34,12 @@ jobIdParser = return . T.pack
 
 revParser :: String -> ReadM Rev
 revParser = pure . Just . T.pack
+
+authCredsParser :: String -> ReadM (Maybe AuthCreds)
+authCredsParser s = do
+  return $ case T.splitOn ":" (T.pack s) of
+    (user:pass:[]) -> Just (user, pass)
+    _           -> Nothing
 
 buildNumParser :: String -> ReadM (Maybe BuildNum)
 buildNumParser = pure . Just . BuildNum . read
@@ -62,8 +70,13 @@ parseOptions = Options
                 <> metavar "JENKINS_URL"
                 <> help "Jenkins base URL"
                 )
+  <*> option (str >>= authCredsParser ) ( short 'u'
+             <> metavar "HTTP_AUTH"
+             <> value Nothing
+             <> help "http authentication credentials (i.e. user:password)"
+             )
   <*> subparser
-        ( command "jobs" jobStatusesParserInfo
+        (  command "jobs" jobStatusesParserInfo
         <> command "job" jobStatusParserInfo
         <> command "build" runBuildParserInfo
         <> command "log" buildLogParserInfo
