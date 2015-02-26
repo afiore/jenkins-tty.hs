@@ -1,11 +1,10 @@
 module Main where
 
 import Options.Applicative
-import Control.Monad.Reader
 
 import Jenkins.Client (handleCmd)
-import Jenkins.Client.Types (Env(..), Client(..))
-import Network.HTTP.Client (withManager, defaultManagerSettings)
+import Jenkins.Client.Types
+import Network.HTTP.Client
 import Options
 
 main :: IO ()
@@ -15,7 +14,7 @@ main = do
       let env = Env { envOpts    = opts
                     , envManager = m
                     }
-      runReaderT (runClient handleCmd) env
+      runClient env handleCmd
   where
     handleOpts = info (helper <*> parseOptions)
           ( fullDesc

@@ -3,6 +3,7 @@
 module Jenkins.Client.Types
   ( Env(..)
   , Client(..)
+  , runClient
   , option
   , manager
   , withResponseBody
@@ -25,9 +26,11 @@ data Env = Env
          }
 
 newtype Client a = Client {
-  runClient :: ReaderT Env IO a
+  fromClient :: ReaderT Env IO a
 } deriving (Monad, MonadIO, MonadReader Env)
 
+runClient :: Env -> Client a -> IO a
+runClient e c = runReaderT (fromClient c) e
 
 option :: (Options -> a) -> Client a
 option f = do

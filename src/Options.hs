@@ -7,12 +7,13 @@ module Options
 import Options.Applicative
 
 import qualified Data.Text as T
+import qualified Data.ByteString.Char8 as BS
 
 import Jenkins.Types
 
 type JobId     = T.Text
 type Rev       = Maybe T.Text
-type AuthCreds = (T.Text, T.Text)
+type AuthCreds = (BS.ByteString, BS.ByteString)
 
 data Command = JobStatuses
              | JobStatus JobId
@@ -37,7 +38,7 @@ revParser = pure . Just . T.pack
 
 authCredsParser :: String -> ReadM (Maybe AuthCreds)
 authCredsParser s = do
-  return $ case T.splitOn ":" (T.pack s) of
+  return $ case BS.splitWith ((==) ':') (BS.pack s) of
     (user:pass:[]) -> Just (user, pass)
     _           -> Nothing
 

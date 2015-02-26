@@ -10,44 +10,52 @@ import qualified Data.Text as T
 import qualified Data.Text.Encoding as LBS
 
 import System.FilePath ((</>))
-import Network.HTTP.Client (Request(..), parseUrl, setQueryString)
+import Control.Monad.Trans
+
+import Network.HTTP.Client (Request(..), parseUrl, setQueryString, applyBasicAuth)
 import Network.HTTP.Types
 
+import Options
+
 import Jenkins.Types
+import Jenkins.Client.Types
 
-getJobs :: IO Request
-getJobs = parseUrl (apiUrl "")
+getJobs :: Client Request
+getJobs = defaultReq ""
 
-getJob :: T.Text -> IO Request
-getJob name = parseUrl $ apiUrl ("job" </> T.unpack name)
+getJob :: T.Text -> Client Request
+getJob name = defaultReq ("job" </> T.unpack name)
 
-getBuild :: T.Text -> BuildNum -> IO Request
+getBuild :: T.Text -> BuildNum -> Client Request
 getBuild job (BuildNum n) =
-  parseUrl $ apiUrl ("job" </> T.unpack job </> show n)
+  defaultReq ("job" </> T.unpack job </> show n)
 
 runBuild :: T.Text
          -> Maybe T.Text
-         -> IO Request
+         -> Client Request
 runBuild job rev = do
-  let path' = apiUrl ("job" </> T.unpack job </> "buildWithParameters")
-      rev'  = fmap LBS.encodeUtf8 rev
-      q     = [("GIT_REV", rev')]
-  req <- parseUrl path'
+  req <- defaultReq ("job" </> T.unpack job </> "buildWithParameters")
+  let rev' = fmap LBS.encodeUtf8 rev
+      q    = [("GIT_REV", rev')]
   return (setQueryString q req) { method = methodPost }
 
-buildLog :: T.Text -> BuildNum -> IO Request
+buildLog :: T.Text -> BuildNum -> Client Request
 buildLog job (BuildNum n) = do
   let q = [("start", Just "0")]
-      u = apiUrl ("job" </> T.unpack job </> show n </> "logText" </> "progressiveText")
-  req <- parseUrl u
+  req <- defaultReq ("job" </> T.unpack job </> show n </> "logText" </> "progressiveText")
   return $ setQueryString q req
 ------------------------------------------------------------
 
-defaultHost :: String
-defaultHost = "http://localhost:8080"
+defaultReq :: String -> Client Request
+defaultReq p = do
+  baseUri <- option optsBaseUri
+  mCreds  <- option optsAuth
+  let url  = baseUri </> p </> apiSuffix
+  req     <- liftIO $ parseUrl url
+  return $ case mCreds of
+             Just (user, pass) -> applyBasicAuth user pass req
+             _                 -> req
 
 apiSuffix :: String
 apiSuffix = "api" </> "json"
 
-apiUrl :: String -> String
-apiUrl p = defaultHost </> p </> apiSuffix

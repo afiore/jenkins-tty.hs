@@ -18,7 +18,7 @@ jobStatus :: T.Text
           -> Client JobWithBuilds
 jobStatus name = do
     env <- ask
-    req <- liftIO $ JEP.getJob name
+    req <- JEP.getJob name
 
     handlingFailures req $ \(JobWithBuildNums job nums) -> do
       let nums'        = take 10 nums
@@ -29,13 +29,13 @@ jobStatus name = do
   where
     runJobBuild :: Env -> BuildNum -> IO (Maybe Build)
     runJobBuild e bn = do
-      runReaderT (runClient (jobBuild name bn)) e
+      runClient e (jobBuild name bn)
 
 jobBuild :: T.Text
          -> BuildNum
          -> Client (Maybe Build)
 jobBuild name n = do
-    req <- liftIO $ JEP.getBuild name n
+    req <- JEP.getBuild name n
     handlingFailures req (return . buildWithRev)
 
 buildWithRev :: RawBuild -> Maybe Build

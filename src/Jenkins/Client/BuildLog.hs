@@ -5,7 +5,7 @@ module Jenkins.Client.BuildLog
 import qualified Data.Text as T
 import qualified Data.ByteString as BS
 
-import Control.Monad.Trans
+import Control.Monad.Reader
 import Network.HTTP.Client
 
 import Jenkins.Client.Types
@@ -15,21 +15,20 @@ import qualified Jenkins.Endpoints as JEP
 buildLog :: T.Text
          -> Maybe BuildNum
          -> Client ()
-buildLog name mBnum = do
-    m <- manager
-    case mBnum of
-      Just bn -> liftIO $ stream m bn
-      Nothing -> do
-        req <- liftIO $ JEP.getJob name
-        handlingFailures req $ \(JobWithBuildNums _ nums) -> do
-          liftIO $ case nums of
-            []     -> putStrLn "This job has no builds yet."
-            (bn:_) -> stream m bn
-  where
-    stream :: Manager -> BuildNum -> IO ()
-    stream m buildNum = do
-      req' <- JEP.buildLog name buildNum
-      withResponse req' m consumeStream
+buildLog name (Just bn) = stream name bn
+buildLog name Nothing   = do
+  req <- JEP.getJob name
+  env <- ask
+  handlingFailures req $ \(JobWithBuildNums _ nums) -> do
+    case nums of
+      []     -> putStrLn "This job has no builds yet."
+      (bn:_) -> runClient env $ stream name bn
+
+stream :: T.Text -> BuildNum -> Client ()
+stream job buildNum = do
+  req' <- JEP.buildLog job buildNum
+  m    <- manager
+  liftIO $ withResponse req' m consumeStream
 
 consumeStream :: Response BodyReader -> IO ()
 consumeStream s = do
