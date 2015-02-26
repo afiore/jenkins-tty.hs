@@ -19,11 +19,12 @@ executable jenkins-tty
   main-is:             Main.hs
   -- other-modules:       
   -- other-extensions:    
-  build-depends:       base >=4.6 && <4.7,
+  build-depends:       base >=4.6,
                        text,
                        bytestring,
                        aeson,
                        async,
+                       mtl,
                        http-client,
                        http-types,
                        filepath,

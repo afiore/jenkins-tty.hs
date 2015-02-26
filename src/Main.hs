@@ -1,22 +1,21 @@
 module Main where
 
 import Options.Applicative
+import Control.Monad.Reader
 
-import qualified Jenkins.Client as Jen
-import qualified Network.HTTP.Client as HTTP
+import Jenkins.Client (handleCmd)
+import Jenkins.Client.Types (Env(..), Client(..))
+import Network.HTTP.Client (withManager, defaultManagerSettings)
 import Options
-
-handleCmd :: HTTP.Manager -> Command -> IO ()
-handleCmd m JobStatuses          = Jen.jobStatuses m >>= mapM_ (putStrLn . show)
-handleCmd m (JobStatus jobId)    = Jen.jobStatus m jobId >>= putStrLn . show
-handleCmd m (RunBuild jobId rev) = Jen.runBuild m jobId rev >> putStrLn "OK.."
-handleCmd m (BuildLog jobId mBn) = Jen.buildLog m jobId mBn
 
 main :: IO ()
 main = do
     opts <- execParser handleOpts
-    HTTP.withManager HTTP.defaultManagerSettings $ \m -> do
-      handleCmd m $ optCommand opts
+    withManager defaultManagerSettings $ \m -> do
+      let env = Env { envOpts    = opts
+                    , envManager = m
+                    }
+      runReaderT (runClient handleCmd) env
   where
     handleOpts = info (helper <*> parseOptions)
           ( fullDesc

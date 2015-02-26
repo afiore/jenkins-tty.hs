@@ -1,0 +1,4 @@
+ghc: 7.6.3
+language: haskell
+notifications:
+  email: false
