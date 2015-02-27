@@ -34,28 +34,31 @@ runBuild :: T.Text
          -> Maybe T.Text
          -> Client Request
 runBuild job rev = do
-  req <- defaultReq ("job" </> T.unpack job </> "buildWithParameters")
+  req <- postReq ("job" </> T.unpack job </> "buildWithParameters")
   let rev' = fmap LBS.encodeUtf8 rev
       q    = [("GIT_REV", rev')]
-  return (setQueryString q req) { method = methodPost }
+  return (setQueryString q req)
 
 buildLog :: T.Text -> BuildNum -> Client Request
 buildLog job (BuildNum n) = do
   let q = [("start", Just "0")]
-  req <- defaultReq ("job" </> T.unpack job </> show n </> "logText" </> "progressiveText")
+      p = ("job" </> T.unpack job </> show n </> "logText" </> "progressiveText")
+  req <- defaultReq p
   return $ setQueryString q req
-------------------------------------------------------------
 
 defaultReq :: String -> Client Request
 defaultReq p = do
   baseUri <- option optsBaseUri
   mCreds  <- option optsAuth
-  let url  = baseUri </> p </> apiSuffix
-  req     <- liftIO $ parseUrl url
+  req     <- liftIO . parseUrl $ baseUri </> p </> apiSuffix
   return $ case mCreds of
              Just (user, pass) -> applyBasicAuth user pass req
              _                 -> req
 
+postReq :: String -> Client Request
+postReq p = do
+  req <- defaultReq p
+  return $ req { method = methodPost }
+
 apiSuffix :: String
 apiSuffix = "api" </> "json"
-

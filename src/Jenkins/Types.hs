@@ -34,6 +34,7 @@ decodeJobStatus s =
     "FAILURE"    -> JobFailure
     "grey"       -> JobInProgress
     "blue_anime" -> JobInProgress
+    "red_anime"  -> JobInProgress
     _            -> JobUnknown
 
 data Job = Job
