@@ -54,15 +54,20 @@ test = do
 
     context "when build is in progress" $ do
       it "parses a rawbuild with the InProgress result" $ do
+        let actions =[ OtherAction
+                     , OtherAction
+                     , LastBuiltRev "2fc158d4779616ece8f4f75461746c08fbb48c09"
+                                    [Branch "origin/master"]
+                     ]
+
         rawBuild <- parseResource "build-in-progress.json" :: IO (Either String RawBuild)
         rawBuild `shouldBe` Right (RawBuild
                                   { rawBuildNumber = BuildNum 8
                                   , rawBuildResult = JobInProgress
                                   , rawBuildTimestamp = 1425215442169
                                   , rawBuildDuration = 0
-                                  , rawBuildActions = [ OtherAction
-                                                      , OtherAction
-                                                      , LastBuiltRev "2fc158d4779616ece8f4f75461746c08fbb48c09"
-                                                                     [Branch "origin/master"]
-                                                      ]
+                                  , rawBuildActions = actions
+
+
+
                                   })
