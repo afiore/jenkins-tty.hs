@@ -81,13 +81,21 @@ data Action = LastBuiltRev SHA [Branch]
 
 instance FromJSON Action where
   parseJSON (Object v) = do
-    let k = "lastBuiltRevision"
-    if HM.member k v
+    if lastBuiltRevPresent v
     then do
-      vv <- v  .: k
+      vv <- v  .: lbrKey
       LastBuiltRev <$> vv .: "SHA1" <*> vv .: "branch"
     else return OtherAction
   parseJSON _ = fail "Cannot parse LastBuiltRevision"
+
+lbrKey :: T.Text
+lbrKey = "lastBuiltRevision"
+
+lastBuiltRevPresent :: Object -> Bool
+lastBuiltRevPresent v =
+  case HM.lookup lbrKey v of
+    Just (Object _) -> True
+    _               -> False
 
 newtype BuildNum = BuildNum { fromBuildNum :: Int } deriving (Show, Eq)
 instance FromJSON BuildNum where
