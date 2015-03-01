@@ -6,7 +6,7 @@ import Jenkins.Client.Types
 import Jenkins.Types
 import qualified Jenkins.Endpoints as JEP
 
-jobStatuses :: Client [Job]
+jobStatuses :: Client JobList
 jobStatuses = do
   req <- JEP.getJobs
-  handlingFailures req (return . fromJobList)
+  handlingFailures req return

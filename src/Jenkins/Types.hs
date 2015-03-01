@@ -8,8 +8,8 @@ module Jenkins.Types
   , Branch(..)
   , BuildNum(..)
   , Build(..)
+  , BuildRev(..)
   , Action(..)
-  , BuildRev
   ) where
 
 import Control.Applicative
@@ -18,14 +18,26 @@ import qualified Data.Text as T
 import qualified Data.HashMap.Strict as HM
 
 import Control.Monad
+
 import Data.Aeson
 import Data.Aeson.Types
+import Data.Monoid ((<>))
+
+import Jenkins.Render
+
+------------------------------------------------------------------------------------------------------------------------
 
 data JobStatus = JobSuccess
                | JobFailure
                | JobInProgress
                | JobUnknown
                deriving (Show, Eq)
+
+instance Render JobStatus where
+  render JobSuccess    = "✓"
+  render JobFailure    = "⨉"
+  render JobInProgress = "◷"
+  render JobUnknown    = "?"
 
 decodeJobStatus :: T.Text -> JobStatus
 decodeJobStatus s =
@@ -39,6 +51,8 @@ decodeJobStatus s =
     "red_anime"  -> JobInProgress
     _            -> JobUnknown
 
+------------------------------------------------------------------------------------------------------------------------
+
 data Job = Job
          { jobName   :: T.Text
          , jobStatus :: JobStatus
@@ -51,14 +65,23 @@ instance FromJSON Job where
       liftM decodeJobStatus (v .: "color")
   parseJSON _ = fail "Cannot parse Job"
 
+instance Render Job where
+  render j = joinTxt [jobName j, render (jobStatus j)]
+
+------------------------------------------------------------------------------------------------------------------------
+
 newtype JobList = JobList { fromJobList :: [Job] }
                   deriving (Show)
 instance FromJSON JobList where
   parseJSON (Object v) = JobList <$> v .: "jobs"
   parseJSON _          = fail "Cannot parse JobList"
 
+instance Render JobList where
+  render = T.unlines . (map render) . fromJobList
+
+------------------------------------------------------------------------------------------------------------------------
+
 data JobWithBuildNums = JobWithBuildNums Job [BuildNum] deriving (Show, Eq)
-data JobWithBuilds    = JobWithBuilds Job [Build] deriving (Show, Eq)
 
 instance FromJSON JobWithBuildNums where
   parseJSON o@(Object v) = JobWithBuildNums <$>
@@ -66,7 +89,14 @@ instance FromJSON JobWithBuildNums where
     v .: "builds"
   parseJSON _            = fail "Cannot parse JobWithBuildNums"
 
----------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
+
+data JobWithBuilds = JobWithBuilds Job [Build] deriving (Show, Eq)
+
+instance Render JobWithBuilds where
+  render (JobWithBuilds _ builds) = T.unlines $ map render builds
+
+------------------------------------------------------------------------------------------------------------------------
 
 type SHA = T.Text
 newtype Branch = Branch T.Text deriving (Show, Eq)
@@ -74,6 +104,11 @@ newtype Branch = Branch T.Text deriving (Show, Eq)
 instance FromJSON Branch where
   parseJSON (Object v) = Branch <$> v .: "name"
   parseJSON _ = fail "Cannot parse Branch"
+
+instance Render Branch where
+  render (Branch b) = b
+
+------------------------------------------------------------------------------------------------------------------------
 
 data Action = LastBuiltRev SHA [Branch]
             | OtherAction
@@ -83,7 +118,7 @@ instance FromJSON Action where
   parseJSON (Object v) = do
     if lastBuiltRevPresent v
     then do
-      vv <- v  .: lbrKey
+      vv <- v .: lbrKey
       LastBuiltRev <$> vv .: "SHA1" <*> vv .: "branch"
     else return OtherAction
   parseJSON _ = fail "Cannot parse LastBuiltRevision"
@@ -97,10 +132,18 @@ lastBuiltRevPresent v =
     Just (Object _) -> True
     _               -> False
 
+------------------------------------------------------------------------------------------------------------------------
+
 newtype BuildNum = BuildNum { fromBuildNum :: Int } deriving (Show, Eq)
+
 instance FromJSON BuildNum where
   parseJSON (Object v) = BuildNum <$> v .: "number"
   parseJSON _          = fail "Cannot parse BuildNum"
+
+instance Render BuildNum where
+  render (BuildNum n)= "# " <> T.pack (show n)
+
+------------------------------------------------------------------------------------------------------------------------
 
 data RawBuild = RawBuild
               { rawBuildNumber    :: BuildNum
@@ -126,9 +169,13 @@ result Null       = return JobInProgress
 result (String s) = return $ decodeJobStatus s
 result _          = return JobUnknown
 
----------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 
-type BuildRev = (SHA, Branch)
+newtype BuildRev = BuildRev (SHA, Branch) deriving (Show, Eq)
+
+instance Render BuildRev where
+  render (BuildRev (sha, branch)) = joinTxt [sha, render branch]
+
 data Build = Build
            { buildNumber    :: BuildNum
            , buildResult    :: JobStatus
@@ -136,3 +183,11 @@ data Build = Build
            , buildDuration  :: Int
            , buildRevision  :: BuildRev
            } deriving (Show, Eq)
+
+instance Render Build where
+  render b = joinTxt [ render (buildNumber b)
+                     , render (buildResult b)
+                     , T.pack . show . buildTimestamp $ b
+                     , T.pack . show . buildDuration $ b
+                     , render (buildRevision b)
+                     ]

@@ -33,10 +33,9 @@ test = do
   describe "RawBuild" $ do
     context "when build is completed" $ do
       it "parses a RawBuild" $ do
-        let sha     = "070cb5c898cf045020923c381de35304461844d1"
-            actions = [ OtherAction
+        let actions = [ OtherAction
                       , OtherAction
-                      , LastBuiltRev sha
+                      , LastBuiltRev "070cb5c898cf045020923c381de35304461844d1"
                                      [Branch "origin/schools"]
                       , OtherAction
                       , OtherAction
@@ -60,14 +59,11 @@ test = do
                                     [Branch "origin/master"]
                      ]
 
-        rawBuild <- parseResource "build-in-progress.json" :: IO (Either String RawBuild)
+        rawBuild <- parseResource "build-in-progress.json"
         rawBuild `shouldBe` Right (RawBuild
                                   { rawBuildNumber = BuildNum 8
                                   , rawBuildResult = JobInProgress
                                   , rawBuildTimestamp = 1425215442169
                                   , rawBuildDuration = 0
                                   , rawBuildActions = actions
-
-
-
                                   })

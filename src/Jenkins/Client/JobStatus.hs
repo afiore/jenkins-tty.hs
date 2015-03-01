@@ -31,6 +31,8 @@ jobStatus name = do
     runJobBuild e bn = do
       runClient e (jobBuild name bn)
 
+------------------------------------------------------------------------------------------------------------------------
+
 jobBuild :: T.Text
          -> BuildNum
          -> Client (Maybe Build)
@@ -43,6 +45,6 @@ buildWithRev (RawBuild n r t d as) =
   fmap (Build n r t d) (findLastBuiltRev as)
 
 findLastBuiltRev :: [Action] -> Maybe BuildRev
-findLastBuiltRev ((LastBuiltRev sha (branch:_)):_) = Just (sha, branch)
+findLastBuiltRev ((LastBuiltRev sha (branch:_)):_) = Just (BuildRev (sha, branch))
 findLastBuiltRev (_:rest) = findLastBuiltRev rest
 findLastBuiltRev [] = Nothing
