@@ -21,6 +21,7 @@ import Control.Monad
 
 import Data.Aeson
 import Data.Aeson.Types
+import Data.DateTime as DT
 import Data.Monoid ((<>))
 
 import Jenkins.Render
@@ -106,7 +107,9 @@ instance FromJSON Branch where
   parseJSON _ = fail "Cannot parse Branch"
 
 instance Render Branch where
-  render (Branch b) = b
+  render (Branch b) = case T.breakOn "/" b of
+                        (_, "") -> b
+                        (_, b') -> T.drop 1 b'
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -148,8 +151,8 @@ instance Render BuildNum where
 data RawBuild = RawBuild
               { rawBuildNumber    :: BuildNum
               , rawBuildResult    :: JobStatus
-              , rawBuildTimestamp :: Int
-              , rawBuildDuration  :: Int
+              , rawBuildTimestamp :: Integer
+              , rawBuildDuration  :: Integer
               , rawBuildActions   :: [Action]
               } deriving (Show, Eq)
 
@@ -179,15 +182,28 @@ instance Render BuildRev where
 data Build = Build
            { buildNumber    :: BuildNum
            , buildResult    :: JobStatus
-           , buildTimestamp :: Int
-           , buildDuration  :: Int
+           , buildTimestamp :: Integer
+           , buildDuration  :: Integer
            , buildRevision  :: BuildRev
            } deriving (Show, Eq)
 
 instance Render Build where
   render b = joinTxt [ render (buildNumber b)
                      , render (buildResult b)
-                     , T.pack . show . buildTimestamp $ b
-                     , T.pack . show . buildDuration $ b
+                     , showDateTime . buildTimestamp $ b
+                     , showDuration . buildDuration $ b
                      , render (buildRevision b)
                      ]
+
+showDateTime :: Integer -> T.Text
+showDateTime timestamp =
+  let d = DT.fromSeconds (timestamp `div` 1000)
+  in T.pack $ DT.formatDateTime "%m-%d-%y %H:%M" d
+
+showDuration :: Integer -> T.Text
+showDuration d =
+  let d'   = d  `div` 1000
+      mins = d' `div` 60
+      secs = d' `mod` 60
+  in (T.pack . show $ mins) <> "m" <> " " <>
+     (T.pack . show $ secs) <> "s"

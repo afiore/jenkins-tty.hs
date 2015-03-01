@@ -30,7 +30,8 @@ executable jenkins-tty
                        vector,
                        unordered-containers,
                        network-uri,
-                       optparse-applicative
+                       optparse-applicative,
+                       datetime
   default-extensions:  OverloadedStrings
   default-language:    Haskell2010
   ghc-options:
@@ -52,6 +53,7 @@ test-suite spec
                      unordered-containers,
                      network-uri,
                      optparse-applicative,
+                     datetime,
                      hspec,
                      HUnit
   default-extensions: OverloadedStrings
