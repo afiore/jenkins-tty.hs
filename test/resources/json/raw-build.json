@@ -1,0 +1,104 @@
+{
+  "actions": [
+    {
+      "parameters": [
+        {
+          "name": "GIT_REV",
+          "value": "schools"
+        }
+      ]
+    },
+    {
+      "causes": [
+        {
+          "shortDescription": "Started by user anonymous",
+          "userId": null,
+          "userName": "anonymous"
+        }
+      ]
+    },
+    {
+      "lastBuiltRevision": {
+        "SHA1": "070cb5c898cf045020923c381de35304461844d1",
+        "branch": [
+          {
+            "SHA1": "070cb5c898cf045020923c381de35304461844d1",
+            "name": "origin/schools"
+          }
+        ]
+      },
+      "remoteUrls": [
+        "git@bitbucket.org:orgname/app.git"
+      ],
+      "scmName": ""
+    },
+    {},
+    {},
+    {}
+  ],
+  "artifacts": [
+    {
+      "displayPath": "etl-070cb5c898cf045020923c381de35304461844d1.jar",
+      "fileName": "etl-070cb5c898cf045020923c381de35304461844d1.jar",
+      "relativePath": "dist/etl-070cb5c898cf045020923c381de35304461844d1.jar"
+    },
+    {
+      "displayPath": "web-070cb5c898cf045020923c381de35304461844d1.jar",
+      "fileName": "web-070cb5c898cf045020923c381de35304461844d1.jar",
+      "relativePath": "dist/web-070cb5c898cf045020923c381de35304461844d1.jar"
+    }
+  ],
+  "building": false,
+  "description": null,
+  "duration": 87212,
+  "estimatedDuration": 145622,
+  "executor": null,
+  "fullDisplayName": "citycontext-app #25",
+  "id": "25",
+  "keepLog": false,
+  "number": 25,
+  "result": "SUCCESS",
+  "timestamp": 1423653757651,
+  "url": "http://localhost:8080/job/citycontext-app/25/",
+  "builtOn": "",
+  "changeSet": {
+    "items": [
+      {
+        "affectedPaths": [],
+        "commitId": "3a3c3c8e8c34634b790f33b9232912da6ca4333b",
+        "timestamp": 1423650570000,
+        "author": {
+          "absoluteUrl": "http://localhost:8080/user/ostapneko",
+          "fullName": "ostapneko"
+        },
+        "comment": "Create and populate denorm schools\n",
+        "date": "2015-02-11T11:29:30+0100 +0000",
+        "id": "3a3c3c8e8c34634b790f33b9232912da6ca4333b",
+        "msg": "Create and populate denorm schools",
+        "paths": [ ]
+      },
+      {
+        "affectedPaths": [
+        ],
+        "commitId": "070cb5c898cf045020923c381de35304461844d1",
+        "timestamp": 1423653697000,
+        "author": {
+          "absoluteUrl": "http://localhost:8080/user/ostapneko",
+          "fullName": "ostapneko"
+        },
+        "comment": "Populate denorm schools and query them\n",
+        "date": "2015-02-11T12:21:37+0100 +0000",
+        "id": "070cb5c898cf045020923c381de35304461844d1",
+        "msg": "Populate denorm schools and query them",
+        "paths": []
+      }
+    ],
+    "kind": "git"
+  },
+  "culprits": [
+    {
+      "absoluteUrl": "http://localhost:8080/user/ostapneko",
+      "fullName": "ostapneko"
+    }
+  ]
+}

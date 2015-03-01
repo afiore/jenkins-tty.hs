@@ -17,8 +17,7 @@ cabal-version:       >=1.10
 
 executable jenkins-tty
   main-is:             Main.hs
-  -- other-modules:       
-  -- other-extensions:    
+  hs-source-dirs:      src
   build-depends:       base >=4.6,
                        text,
                        bytestring,
@@ -32,8 +31,28 @@ executable jenkins-tty
                        unordered-containers,
                        network-uri,
                        optparse-applicative
-  hs-source-dirs:      src
   default-extensions:  OverloadedStrings
   default-language:    Haskell2010
   ghc-options:
     -fwarn-incomplete-patterns
+test-suite spec
+  type:              exitcode-stdio-1.0
+  main-is:           Suite.hs
+  hs-source-dirs:    test, src
+  build-depends:     base >=4.6,
+                     text,
+                     bytestring,
+                     aeson,
+                     async,
+                     mtl,
+                     http-client,
+                     http-types,
+                     filepath,
+                     vector,
+                     unordered-containers,
+                     network-uri,
+                     optparse-applicative,
+                     hspec,
+                     HUnit
+  default-extensions: OverloadedStrings
+  default-language:  Haskell2010

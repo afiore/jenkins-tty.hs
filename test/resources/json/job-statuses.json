@@ -1,0 +1,43 @@
+{
+  "assignedLabels": [
+    {}
+  ],
+  "mode": "NORMAL",
+  "nodeDescription": "the master Jenkins node",
+  "nodeName": "",
+  "numExecutors": 2,
+  "description": null,
+  "jobs": [
+    {
+      "name": "success-app",
+      "url": "http://localhost:8080/job/citycontext-app/",
+      "color": "blue"
+    },
+    {
+      "name": "failure-app",
+      "url": "http://localhost:8080/job/explore-app/",
+      "color": "red"
+    },
+    {
+      "name": "in-progress-app",
+      "url": "http://localhost:8080/job/explore-front-end/",
+      "color": "blue_anime"
+    }
+  ],
+  "overallLoad": {},
+  "primaryView": {
+    "name": "All",
+    "url": "http://localhost:8080/"
+  },
+  "quietingDown": false,
+  "slaveAgentPort": 0,
+  "unlabeledLoad": {},
+  "useCrumbs": false,
+  "useSecurity": false,
+  "views": [
+    {
+      "name": "All",
+      "url": "http://localhost:8080/"
+    }
+  ]
+}

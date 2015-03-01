@@ -1,0 +1,100 @@
+{
+  "actions": [
+    {
+      "parameterDefinitions": [
+        {
+          "defaultParameterValue": {
+            "value": "master"
+          },
+          "description": "git rev",
+          "name": "GIT_REV",
+          "type": "StringParameterDefinition"
+        }
+      ]
+    },
+    {}
+  ],
+  "description": "",
+  "displayName": "test-app",
+  "displayNameOrNull": null,
+  "name": "test-app",
+  "url": "http://localhost:8080/job/citycontext-app/",
+  "buildable": true,
+  "builds": [
+    {
+      "number": 5,
+      "url": "http://localhost:8080/job/citycontext-app/5/"
+    },
+    {
+      "number": 4,
+      "url": "http://localhost:8080/job/citycontext-app/4/"
+    },
+    {
+      "number": 3,
+      "url": "http://localhost:8080/job/citycontext-app/3/"
+    },
+    {
+      "number": 2,
+      "url": "http://localhost:8080/job/citycontext-app/2/"
+    },
+    {
+      "number": 1,
+      "url": "http://localhost:8080/job/citycontext-app/1/"
+    }
+  ],
+  "color": "red",
+  "firstBuild": {
+    "number": 1,
+    "url": "http://localhost:8080/job/citycontext-app/1/"
+  },
+  "healthReport": [
+    {
+      "description": "Build stability: All recent builds failed.",
+      "iconClassName": "icon-health-00to19",
+      "iconUrl": "health-00to19.png",
+      "score": 0
+    }
+  ],
+  "inQueue": false,
+  "keepDependencies": false,
+  "lastBuild": {
+    "number": 6,
+    "url": "http://localhost:8080/job/citycontext-app/6/"
+  },
+  "lastCompletedBuild": {
+    "number": 6,
+    "url": "http://localhost:8080/job/citycontext-app/6/"
+  },
+  "lastFailedBuild": {
+    "number": 6,
+    "url": "http://localhost:8080/job/citycontext-app/6/"
+  },
+  "lastStableBuild": null,
+  "lastSuccessfulBuild": null,
+  "lastUnstableBuild": null,
+  "lastUnsuccessfulBuild": {
+    "number": 6,
+    "url": "http://localhost:8080/job/citycontext-app/6/"
+  },
+  "nextBuildNumber": 7,
+  "property": [
+    {
+      "parameterDefinitions": [
+        {
+          "defaultParameterValue": {
+            "name": "GIT_REV",
+            "value": "master"
+          },
+          "description": "git rev",
+          "name": "GIT_REV",
+          "type": "StringParameterDefinition"
+        }
+      ]
+    }
+  ],
+  "queueItem": null,
+  "concurrentBuild": false,
+  "downstreamProjects": [],
+  "scm": {},
+  "upstreamProjects": []
+}

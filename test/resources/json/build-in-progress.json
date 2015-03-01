@@ -1,0 +1,98 @@
+{
+  "actions": [
+    {
+      "parameters": [
+        {
+          "name": "GIT_REV",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "causes": [
+        {
+          "shortDescription": "Started by user anonymous",
+          "userId": null,
+          "userName": "anonymous"
+        }
+      ]
+    },
+    {
+      "buildsByBranchName": {
+        "origin/master": {
+          "buildNumber": 7,
+          "buildResult": null,
+          "marked": {
+            "SHA1": "2fc158d4779616ece8f4f75461746c08fbb48c09",
+            "branch": [
+              {
+                "SHA1": "2fc158d4779616ece8f4f75461746c08fbb48c09",
+                "name": "origin/master"
+              }
+            ]
+          },
+          "revision": {
+            "SHA1": "2fc158d4779616ece8f4f75461746c08fbb48c09",
+            "branch": [
+              {
+                "SHA1": "2fc158d4779616ece8f4f75461746c08fbb48c09",
+                "name": "origin/master"
+              }
+            ]
+          }
+        },
+        "origin/unfiltered": {
+          "buildNumber": 6,
+          "buildResult": null,
+          "marked": {
+            "SHA1": "cb9f1b77d1c55566ba7a9bdb87c712ed82b28750",
+            "branch": [
+              {
+                "SHA1": "cb9f1b77d1c55566ba7a9bdb87c712ed82b28750",
+                "name": "origin/unfiltered"
+              }
+            ]
+          },
+          "revision": {
+            "SHA1": "cb9f1b77d1c55566ba7a9bdb87c712ed82b28750",
+            "branch": [
+              {
+                "SHA1": "cb9f1b77d1c55566ba7a9bdb87c712ed82b28750",
+                "name": "origin/unfiltered"
+              }
+            ]
+          }
+        }
+      },
+      "lastBuiltRevision": {
+        "SHA1": "2fc158d4779616ece8f4f75461746c08fbb48c09",
+        "branch": [
+          {
+            "SHA1": "2fc158d4779616ece8f4f75461746c08fbb48c09",
+            "name": "origin/master"
+          }
+        ]
+      },
+      "scmName": ""
+    }
+  ],
+  "artifacts": [],
+  "building": true,
+  "description": null,
+  "duration": 0,
+  "estimatedDuration": 242123,
+  "executor": {},
+  "fullDisplayName": "test-app #8",
+  "id": "8",
+  "keepLog": false,
+  "number": 8,
+  "result": null,
+  "timestamp": 1425215442169,
+  "url": "http://localhost:8080/job/test-app/8/",
+  "builtOn": "",
+  "changeSet": {
+    "items": [],
+    "kind": null
+  },
+  "culprits": []
+}

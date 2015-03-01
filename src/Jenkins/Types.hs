@@ -5,6 +5,7 @@ module Jenkins.Types
   , RawBuild(..)
   , JobWithBuildNums(..)
   , JobWithBuilds(..)
+  , Branch(..)
   , BuildNum(..)
   , Build(..)
   , Action(..)
@@ -18,6 +19,7 @@ import qualified Data.HashMap.Strict as HM
 
 import Control.Monad
 import Data.Aeson
+import Data.Aeson.Types
 
 data JobStatus = JobSuccess
                | JobFailure
@@ -101,14 +103,20 @@ data RawBuild = RawBuild
               } deriving (Show, Eq)
 
 instance FromJSON RawBuild where
-  parseJSON (Object v) =
-    RawBuild <$>
-      parseJSON (Object v)                  <*>
-      liftM decodeJobStatus (v .: "result") <*>
-      v .: "timestamp"                      <*>
-      v .: "duration"                       <*>
+  parseJSON (Object v) = do
+    res <- (v .: "result")
+    RawBuild                <$>
+      parseJSON (Object v)  <*>
+      result res            <*>
+      v .: "timestamp"      <*>
+      v .: "duration"       <*>
       v .: "actions"
-  parseJSON _         = fail "Cannot parse RawBuild"
+  parseJSON _  = fail "Cannot parse RawBuild"
+
+result :: Value -> Parser JobStatus
+result Null       = return JobInProgress
+result (String s) = return $ decodeJobStatus s
+result _          = return JobUnknown
 
 ---------------------------------------------------------------------------
 
