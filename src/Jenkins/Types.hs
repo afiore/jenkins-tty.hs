@@ -35,10 +35,15 @@ data JobStatus = JobSuccess
                deriving (Show, Eq)
 
 instance Render JobStatus where
-  render JobSuccess    = "✓"
-  render JobFailure    = "⨉"
-  render JobInProgress = "◷"
-  render JobUnknown    = "?"
+  renderTTY JobSuccess    = "✓"
+  renderTTY JobFailure    = "⨉"
+  renderTTY JobInProgress = "◷"
+  renderTTY JobUnknown    = "?"
+
+  render JobSuccess    = "success"
+  render JobFailure    = "failure"
+  render JobInProgress = "in progress"
+  render JobUnknown    = "unknown"
 
 decodeJobStatus :: T.Text -> JobStatus
 decodeJobStatus s =

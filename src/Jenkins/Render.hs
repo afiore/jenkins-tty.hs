@@ -1,6 +1,5 @@
 module Jenkins.Render
  ( Render(..)
- , prettyPrint
  , joinTxt
  ) where
 
@@ -20,5 +19,5 @@ class Render a where
   render :: Show a => a -> T.Text
   render = T.pack . show
 
-prettyPrint :: (Render a, Show a) => a => IO ()
-prettyPrint = T.putStrLn . render
+  prettyPrint :: Show a => a => IO ()
+  prettyPrint = T.putStrLn . render
