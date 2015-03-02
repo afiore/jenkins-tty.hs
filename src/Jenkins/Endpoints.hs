@@ -7,7 +7,8 @@ module Jenkins.Endpoints
   ) where
 
 import qualified Data.Text as T
-import qualified Data.Text.Encoding as LBS
+import qualified Data.ByteString.Char8 as BS
+import qualified Data.Text.Encoding as TE
 
 import System.FilePath ((</>))
 import Control.Monad.Trans
@@ -35,13 +36,13 @@ runBuild :: T.Text
          -> Client Request
 runBuild job rev = do
   req <- postReq ("job" </> T.unpack job </> "buildWithParameters")
-  let rev' = fmap LBS.encodeUtf8 rev
+  let rev' = fmap TE.encodeUtf8 rev
       q    = [("GIT_REV", rev')]
   return (setQueryString q req)
 
-buildLog :: T.Text -> BuildNum -> Client Request
-buildLog job (BuildNum n) = do
-  let q = [("start", Just "0")]
+buildLog :: Maybe Int -> T.Text -> BuildNum -> Client Request
+buildLog mStart job (BuildNum n) = do
+  let q = maybe [] (\s -> [("start", Just (BS.pack $ show s))]) mStart
       p = ("job" </> T.unpack job </> show n </> "logText" </> "progressiveText")
   req <- defaultReq p
   return $ setQueryString q req

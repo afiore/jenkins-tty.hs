@@ -20,6 +20,7 @@ executable jenkins-tty
   hs-source-dirs:      src
   build-depends:       base >=4.6,
                        text,
+                       case-insensitive,
                        bytestring,
                        aeson,
                        async,
@@ -42,6 +43,7 @@ test-suite spec
   hs-source-dirs:    test, src
   build-depends:     base >=4.6,
                      text,
+                     case-insensitive,
                      bytestring,
                      aeson,
                      async,
