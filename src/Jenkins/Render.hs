@@ -19,5 +19,5 @@ class Render a where
   render :: Show a => a -> T.Text
   render = T.pack . show
 
-  prettyPrint :: Show a => a => IO ()
+  prettyPrint :: Show a => a -> IO ()
   prettyPrint = T.putStrLn . render
