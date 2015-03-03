@@ -22,5 +22,5 @@ handleCmd = do
     (RunBuild jobId rev) -> Cmd.runBuild jobId rev >>  liftIO (putStrLn "OK")
     (BuildLog jobId mBn) -> Cmd.buildLog jobId mBn
 
-renderM :: (Show a, Render a) => a -> Client ()
+renderM :: Render a => a -> Client ()
 renderM = liftIO . prettyPrint

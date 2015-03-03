@@ -12,11 +12,11 @@ delimiter = "|"
 joinTxt :: [T.Text] -> T.Text
 joinTxt = T.intercalate delimiter
 
-class Render a where
-  renderTTY :: Show a => a -> T.Text
+class Show a => Render a where
+  renderTTY :: a -> T.Text
   renderTTY = render
 
-  render :: Show a => a -> T.Text
+  render :: a -> T.Text
   render = T.pack . show
 
   prettyPrint :: Show a => a -> IO ()
