@@ -41,10 +41,8 @@ runBuild job rev = do
 
 buildLog :: T.Text -> BuildNum -> Client Request
 buildLog job (BuildNum n) = do
-  let q = [("start", Just "0")]
-      p = ("job" </> T.unpack job </> show n </> "logText" </> "progressiveText")
-  req <- defaultReq p
-  return $ setQueryString q req
+  let p = ("job" </> T.unpack job </> show n </> "logText" </> "progressiveText")
+  defaultReq p
 
 defaultReq :: String -> Client Request
 defaultReq p = do
