@@ -26,7 +26,7 @@ import Data.Monoid ((<>))
 
 import Jenkins.Render
 
-------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 data JobStatus = JobSuccess
                | JobFailure
@@ -61,7 +61,7 @@ decodeJobStatus s =
     "red_anime"  -> JobInProgress
     _            -> JobUnknown
 
-------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 data Job = Job
          { jobName   :: T.Text
@@ -82,7 +82,7 @@ instance Render Job where
               ]
   render j = joinTxt [jobName j, render (jobStatus j)]
 
-------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 newtype JobList = JobList { fromJobList :: [Job] }
                   deriving (Show)
@@ -94,7 +94,7 @@ instance Render JobList where
   renderTTY = T.unlines . (map renderTTY) . fromJobList
   render    = T.unlines . (map render) . fromJobList
 
-------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 data JobWithBuildNums = JobWithBuildNums Job [BuildNum] deriving (Show, Eq)
 
@@ -104,7 +104,7 @@ instance FromJSON JobWithBuildNums where
     v .: "builds"
   parseJSON _            = fail "Cannot parse JobWithBuildNums"
 
-------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 data JobWithBuilds = JobWithBuilds Job [Build] deriving (Show, Eq)
 
@@ -112,7 +112,7 @@ instance Render JobWithBuilds where
   renderTTY (JobWithBuilds _ builds) = T.unlines $ map renderTTY builds
   render (JobWithBuilds _ builds)    = T.unlines $ map render builds
 
-------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 type SHA = T.Text
 newtype Branch = Branch T.Text deriving (Show, Eq)
@@ -122,7 +122,7 @@ instance FromJSON Branch where
   parseJSON _ = fail "Cannot parse Branch"
 
 instance Render Branch where
-  renderTTY (Branch b) = padR 15 $ dropPrefix $ b
+  renderTTY (Branch b) = padR 25 $ dropPrefix $ b
   render (Branch b) = dropPrefix $ b
 
 dropPrefix :: T.Text -> T.Text
@@ -131,7 +131,7 @@ dropPrefix b =
     (_, "") -> b
     (_, b') -> T.drop 1 b'
 
-------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 data Action = LastBuiltRev SHA [Branch]
             | OtherAction
@@ -155,7 +155,7 @@ lastBuiltRevPresent v =
     Just (Object _) -> True
     _               -> False
 
-------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 newtype BuildNum = BuildNum { fromBuildNum :: Int } deriving (Show, Eq)
 
@@ -166,7 +166,7 @@ instance FromJSON BuildNum where
 instance Render BuildNum where
   render (BuildNum n)= "# " <> padR 3 (T.pack (show n))
 
-------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 data RawBuild = RawBuild
               { rawBuildNumber    :: BuildNum
@@ -192,7 +192,7 @@ result Null       = return JobInProgress
 result (String s) = return $ decodeJobStatus s
 result _          = return JobUnknown
 
-------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 
 newtype BuildRev = BuildRev (SHA, Branch) deriving (Show, Eq)
 

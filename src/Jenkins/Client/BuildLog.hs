@@ -24,6 +24,8 @@ buildLog name Nothing   = do
       []     -> putStrLn "This job has no builds yet."
       (bn:_) -> runClient env $ stream name bn
 
+-------------------------------------------------------------------------------
+
 stream :: T.Text -> BuildNum -> Client ()
 stream job buildNum = do
   req' <- JEP.buildLog job buildNum
