@@ -35,10 +35,14 @@ data JobStatus = JobSuccess
                deriving (Show, Eq)
 
 instance Render JobStatus where
-  renderTTY JobSuccess    = "✓"
-  renderTTY JobFailure    = "⨉"
-  renderTTY JobInProgress = "◷"
-  renderTTY JobUnknown    = "?"
+  renderTTY s =
+    let (glyph, mColor) = case s of
+                            JobSuccess    -> ("✓", Just "0;32")
+                            JobFailure    -> ("⨉", Just "0;31")
+                            JobInProgress -> ("◷", Just "1;33")
+                            JobUnknown    -> ("?", Nothing)
+        colorize code   = "\x1b[0" <> code <> "m" <> glyph <> "\x1b[00m"
+    in maybe glyph colorize mColor
 
   render JobSuccess    = "success"
   render JobFailure    = "failure"
@@ -72,6 +76,10 @@ instance FromJSON Job where
   parseJSON _ = fail "Cannot parse Job"
 
 instance Render Job where
+  renderTTY j =
+    T.unwords [ renderTTY $ jobStatus j
+              , jobName j
+              ]
   render j = joinTxt [jobName j, render (jobStatus j)]
 
 ------------------------------------------------------------------------------------------------------------------------
@@ -83,7 +91,8 @@ instance FromJSON JobList where
   parseJSON _          = fail "Cannot parse JobList"
 
 instance Render JobList where
-  render = T.unlines . (map render) . fromJobList
+  renderTTY = T.unlines . (map renderTTY) . fromJobList
+  render    = T.unlines . (map render) . fromJobList
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -100,7 +109,8 @@ instance FromJSON JobWithBuildNums where
 data JobWithBuilds = JobWithBuilds Job [Build] deriving (Show, Eq)
 
 instance Render JobWithBuilds where
-  render (JobWithBuilds _ builds) = T.unlines $ map render builds
+  renderTTY (JobWithBuilds _ builds) = T.unlines $ map renderTTY builds
+  render (JobWithBuilds _ builds)    = T.unlines $ map render builds
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -112,9 +122,14 @@ instance FromJSON Branch where
   parseJSON _ = fail "Cannot parse Branch"
 
 instance Render Branch where
-  render (Branch b) = case T.breakOn "/" b of
-                        (_, "") -> b
-                        (_, b') -> T.drop 1 b'
+  renderTTY (Branch b) = padR 15 $ dropPrefix $ b
+  render (Branch b) = dropPrefix $ b
+
+dropPrefix :: T.Text -> T.Text
+dropPrefix b =
+  case T.breakOn "/" b of
+    (_, "") -> b
+    (_, b') -> T.drop 1 b'
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -149,7 +164,7 @@ instance FromJSON BuildNum where
   parseJSON _          = fail "Cannot parse BuildNum"
 
 instance Render BuildNum where
-  render (BuildNum n)= "# " <> T.pack (show n)
+  render (BuildNum n)= "# " <> padR 3 (T.pack (show n))
 
 ------------------------------------------------------------------------------------------------------------------------
 
@@ -182,7 +197,10 @@ result _          = return JobUnknown
 newtype BuildRev = BuildRev (SHA, Branch) deriving (Show, Eq)
 
 instance Render BuildRev where
-  render (BuildRev (sha, branch)) = joinTxt [sha, render branch]
+  renderTTY (BuildRev (sha, branch)) = T.unwords [ T.take 10 sha
+                                                 , renderTTY branch
+                                                 ]
+  render (BuildRev (sha, branch))    = joinTxt [sha, render branch]
 
 data Build = Build
            { buildNumber    :: BuildNum
@@ -193,8 +211,15 @@ data Build = Build
            } deriving (Show, Eq)
 
 instance Render Build where
-  render b = joinTxt [ render (buildNumber b)
-                     , render (buildResult b)
+  renderTTY b = T.unwords [ renderTTY (buildResult b)
+                          , renderTTY (buildNumber b)
+                          , showDateTime . buildTimestamp $ b
+                          , showDuration . buildDuration $ b
+                          , renderTTY (buildRevision b)
+                          ]
+
+  render b = joinTxt [ render (buildResult b)
+                     , render (buildNumber b)
                      , showDateTime . buildTimestamp $ b
                      , showDuration . buildDuration $ b
                      , render (buildRevision b)
@@ -206,9 +231,11 @@ showDateTime timestamp =
   in T.pack $ DT.formatDateTime "%m-%d-%y %H:%M" d
 
 showDuration :: Integer -> T.Text
+showDuration 0 = padL 7 "n/a"
 showDuration d =
   let d'   = d  `div` 1000
       mins = d' `div` 60
       secs = d' `mod` 60
-  in (T.pack . show $ mins) <> "m" <> " " <>
-     (T.pack . show $ secs) <> "s"
+  in T.unwords [ (padL 2 . T.pack . show $ mins) <> "m"
+               , (padL 2 . T.pack . show $ secs) <> "s"
+               ]
