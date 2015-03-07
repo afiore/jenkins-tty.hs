@@ -2,22 +2,24 @@ module Options
   ( Command(..)
   , Options(..)
   , parseOptions
+  , BuildParams
   ) where
 
 import Options.Applicative
 
 import qualified Data.Text as T
 import qualified Data.ByteString.Char8 as BS
+import Data.Maybe (mapMaybe)
 
 import Jenkins.Types
 
-type JobId     = T.Text
-type Rev       = Maybe T.Text
-type AuthCreds = (BS.ByteString, BS.ByteString)
+type JobId       = T.Text
+type AuthCreds   = (BS.ByteString, BS.ByteString)
+type BuildParams = [(BS.ByteString, BS.ByteString)]
 
 data Command = JobStatuses
              | JobStatus JobId
-             | RunBuild JobId Rev
+             | RunBuild JobId BuildParams
              | BuildLog JobId (Maybe BuildNum)
              deriving (Show, Eq)
 
@@ -33,14 +35,20 @@ parserInfo cmd desc = info (helper <*> cmd) (progDesc desc)
 jobIdParser :: String -> ReadM JobId
 jobIdParser = return . T.pack
 
-revParser :: String -> ReadM Rev
-revParser = pure . Just . T.pack
+buildParamParser :: String -> ReadM BuildParams
+buildParamParser = return . mapMaybe parseParam . BS.words . BS.pack
+
+parseParam :: BS.ByteString -> Maybe (BS.ByteString, BS.ByteString)
+parseParam s =
+  case (BS.break ((==) '=') s) of
+      (_, "") -> Nothing
+      (k, v)  -> Just (k, BS.drop 1 v)
 
 authCredsParser :: String -> ReadM (Maybe AuthCreds)
 authCredsParser s = do
   return $ case BS.splitWith ((==) ':') (BS.pack s) of
     (user:pass:[]) -> Just (user, pass)
-    _           -> Nothing
+    _              -> Nothing
 
 buildNumParser :: String -> ReadM (Maybe BuildNum)
 buildNumParser = pure . Just . BuildNum . read
@@ -52,9 +60,9 @@ jobStatusParser = JobStatus
 runBuildParser :: Parser Command
 runBuildParser = RunBuild
   <$> argument (str >>= jobIdParser) ( metavar "JOB_ID" )
-  <*> argument (str >>= revParser) ( metavar "GIT_REV"
-                                   <> value Nothing
-                                   <> help "Git revision or SHA1"
+  <*> argument (str >>= buildParamParser) ( metavar "PARAM=VALUE .."
+                                   <> value []
+                                   <> help "List of parameter/value pairs"
                                    )
 
 buildLogParser :: Parser Command

@@ -17,9 +17,9 @@ handleCmd :: Client ()
 handleCmd = do
   cmd <- option optsCommand
   case cmd of
-    JobStatuses          -> Cmd.jobStatuses        >>= renderM
-    (JobStatus jobId)    -> Cmd.jobStatus jobId    >>= renderM
-    (RunBuild jobId rev) -> Cmd.runBuild jobId rev >>  liftIO (putStrLn "OK")
+    JobStatuses          -> Cmd.jobStatuses              >>= renderM
+    (JobStatus jobId)    -> Cmd.jobStatus jobId          >>= renderM
+    (RunBuild jobId params) -> Cmd.runBuild jobId params >>  liftIO (putStrLn "OK")
     (BuildLog jobId mBn) -> Cmd.buildLog jobId mBn
 
 renderM :: Render a => a -> Client ()

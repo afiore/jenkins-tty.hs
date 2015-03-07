@@ -31,6 +31,7 @@ import Jenkins.Render
 data JobStatus = JobSuccess
                | JobFailure
                | JobInProgress
+               | JobAborted
                | JobUnknown
                deriving (Show, Eq)
 
@@ -40,6 +41,7 @@ instance Render JobStatus where
                             JobSuccess    -> ("✓", Just "0;32")
                             JobFailure    -> ("⨉", Just "0;31")
                             JobInProgress -> ("◷", Just "1;33")
+                            JobAborted    -> ("☐", Just "1;30")
                             JobUnknown    -> ("?", Nothing)
         colorize code   = "\x1b[0" <> code <> "m" <> glyph <> "\x1b[00m"
     in maybe glyph colorize mColor
@@ -47,6 +49,7 @@ instance Render JobStatus where
   render JobSuccess    = "success"
   render JobFailure    = "failure"
   render JobInProgress = "in progress"
+  render JobAborted    = "aborted"
   render JobUnknown    = "unknown"
 
 decodeJobStatus :: T.Text -> JobStatus
@@ -59,6 +62,7 @@ decodeJobStatus s =
     "grey"       -> JobInProgress
     "blue_anime" -> JobInProgress
     "red_anime"  -> JobInProgress
+    "aborted"    -> JobAborted
     _            -> JobUnknown
 
 -------------------------------------------------------------------------------
