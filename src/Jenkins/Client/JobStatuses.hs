@@ -9,4 +9,4 @@ import qualified Jenkins.Endpoints as JEP
 jobStatuses :: Client JobList
 jobStatuses = do
   req <- JEP.getJobs
-  handlingFailures req return
+  decodingResponse req id

@@ -11,4 +11,4 @@ runBuild :: T.Text
          -> Client ()
 runBuild name params = do
     req <- JEP.runBuild name params
-    withResponseBody req (return . const ())
+    withResponseBody req (const ())

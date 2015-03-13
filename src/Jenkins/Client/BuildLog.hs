@@ -4,6 +4,7 @@ module Jenkins.Client.BuildLog
 
 import qualified Data.Text    as T
 import qualified Data.Text.IO as T
+import Data.List (null, head)
 import qualified Data.ByteString.Lazy.Char8 as LBS
 
 import Control.Monad.Reader
@@ -17,16 +18,18 @@ buildLog :: T.Text
          -> Client ()
 buildLog name (Just bn) = putLog name bn
 buildLog name Nothing   = do
-  env <- ask
-  req <- JEP.getJob name
-  handlingFailures req $ \(JobWithBuildNums _ nums) -> do
-    case nums of
-      []     -> T.putStrLn "This job has no builds yet."
-      (bn:_) -> runClient env $ putLog name bn
+  req                       <- JEP.getJob name
+  (JobWithBuildNums _ nums) <- decodingResponse req id
+  if (null nums)
+  then
+    fail "This job has no builds yet"
+  else
+    putLog name (head nums)
 
 -------------------------------------------------------------------------------
 
 putLog :: T.Text -> BuildNum -> Client ()
 putLog job buildNum = do
   req' <- JEP.buildLog job buildNum
-  withResponseBody req' LBS.putStrLn
+  body <- withResponseBody req' id
+  liftIO $ LBS.putStrLn body
