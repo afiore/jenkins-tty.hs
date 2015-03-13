@@ -6,8 +6,8 @@ module Jenkins.Client.Types
   , env
   , option
   , manager
-  , withResponseBody
-  , decodingResponse
+  , getResponseBody
+  , decodeResponse
   ) where
 
 
@@ -15,8 +15,8 @@ import Data.Aeson
 import qualified Data.ByteString.Lazy.Internal as LBS
 
 import Control.Monad.Trans
-import Control.Monad.Reader
 import Network.HTTP.Client
+import Network.HTTP.Types
 import Options
 
 data Env = Env
@@ -24,11 +24,10 @@ data Env = Env
          , envManager :: Manager
          }
 
-data AppError = HttpError Int
+data AppError = HttpError Status Request
               | JsonError String
               | ClientError String
-              deriving (Show, Eq)
-
+              deriving (Show)
 
 newtype Client a = Client {
   runClient :: Env -> IO (Either AppError a)
@@ -54,7 +53,7 @@ instance MonadIO Client where
     return $ Right v
 
 failJson msg = Client $ \_ -> return $ Left . JsonError $ msg
-failHttp msg = Client $ \_ -> return $ Left . HttpError $ msg
+failHttp status req = Client $ \_ -> return . Left $ HttpError status req
 
 env :: Client Env
 env = Client $ \e -> return (Right e)
@@ -65,20 +64,29 @@ option f = Client $ \e -> return $ Right . f . envOpts $ e
 manager :: Client Manager
 manager = Client $ \e -> return $ Right .  envManager $ e
 
-withResponseBody :: Request
-                 -> (LBS.ByteString -> b)
-                 -> Client b
-withResponseBody req f = do
+getResponseBody :: Request
+                 -> Client LBS.ByteString
+getResponseBody req = do
   m    <- manager
   resp <- liftIO $ httpLbs req m
-  return $ f (responseBody resp)
+  let status = responseStatus resp
+  if (isSuccess status)
+  then
+    failHttp status req
+  else
+    return $ responseBody resp
 
-decodingResponse :: FromJSON a
-                 => Request
-                 -> (a -> b)
-                 -> Client b
-decodingResponse req f =  do
-  body <- withResponseBody req id
+isSuccess :: Status -> Bool
+isSuccess s =
+   case (show . statusCode $ s) of
+     '2':_:_ -> True
+     _       -> False
+
+decodeResponse :: FromJSON a
+               => Request
+               -> Client a
+decodeResponse req =  do
+  body <- getResponseBody req
   case (eitherDecode body) of
     (Left msg) -> failJson msg
-    (Right v)  -> return (f v)
+    (Right v)  -> return v

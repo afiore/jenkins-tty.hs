@@ -3,8 +3,6 @@ module Jenkins.Client.BuildLog
   ) where
 
 import qualified Data.Text    as T
-import qualified Data.Text.IO as T
-import Data.List (null, head)
 import qualified Data.ByteString.Lazy.Char8 as LBS
 
 import Control.Monad.Reader
@@ -18,8 +16,7 @@ buildLog :: T.Text
          -> Client ()
 buildLog name (Just bn) = putLog name bn
 buildLog name Nothing   = do
-  req                       <- JEP.getJob name
-  (JobWithBuildNums _ nums) <- decodingResponse req id
+  (JobWithBuildNums _ nums) <- JEP.getJob name >>= decodeResponse
   if (null nums)
   then
     fail "This job has no builds yet"
@@ -30,6 +27,5 @@ buildLog name Nothing   = do
 
 putLog :: T.Text -> BuildNum -> Client ()
 putLog job buildNum = do
-  req' <- JEP.buildLog job buildNum
-  body <- withResponseBody req' id
+  body <- JEP.buildLog job buildNum >>= getResponseBody
   liftIO $ LBS.putStrLn body

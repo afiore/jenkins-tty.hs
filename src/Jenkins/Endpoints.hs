@@ -48,9 +48,13 @@ defaultReq p = do
   baseUri <- option optsBaseUri
   mCreds  <- option optsAuth
   req     <- liftIO . parseUrl $ baseUri </> p </> apiSuffix
+
+  let cs _ _ _ = Nothing
+      req'     = req { checkStatus = cs }
+
   return $ case mCreds of
-             Just (user, pass) -> applyBasicAuth user pass req
-             _                 -> req
+             Just (user, pass) -> applyBasicAuth user pass req'
+             _                 -> req'
 
 postReq :: String -> Client Request
 postReq p = do

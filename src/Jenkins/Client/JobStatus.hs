@@ -18,9 +18,9 @@ jobStatus :: T.Text
           -> Client JobWithBuilds
 jobStatus name = do
     env'                        <- env
-    req                         <- JEP.getJob name
-    (JobWithBuildNums job nums) <- decodingResponse req id
-    let nums'        = take 10 nums
+    (JobWithBuildNums job nums) <- JEP.getJob name >>= decodeResponse
+
+    let nums' = take 10 nums
     mBuilds <- liftIO $ mapConcurrently (runJobBuild env') nums'
     let builds = catMaybes mBuilds
     return $ JobWithBuilds job builds
@@ -38,8 +38,8 @@ jobBuild :: T.Text
          -> BuildNum
          -> Client (Maybe Build)
 jobBuild name n = do
-    req <- JEP.getBuild name n
-    decodingResponse req buildWithRev
+  rawBuidl <- JEP.getBuild name n >>= decodeResponse
+  return $ buildWithRev rawBuidl
 
 buildWithRev :: RawBuild -> Maybe Build
 buildWithRev (RawBuild n r t d as) =

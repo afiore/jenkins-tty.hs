@@ -7,6 +7,4 @@ import Jenkins.Types
 import qualified Jenkins.Endpoints as JEP
 
 jobStatuses :: Client JobList
-jobStatuses = do
-  req <- JEP.getJobs
-  decodingResponse req id
+jobStatuses = JEP.getJobs >>= decodeResponse
