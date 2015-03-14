@@ -1,8 +1,9 @@
 module Options
   ( Command(..)
   , Options(..)
+  , BuildParams(..)
+  , AuthCreds(..)
   , parseOptions
-  , BuildParams
   ) where
 
 import Options.Applicative
@@ -14,8 +15,14 @@ import Data.Maybe (mapMaybe)
 import Jenkins.Types
 
 type JobId       = T.Text
-type AuthCreds   = (BS.ByteString, BS.ByteString)
-type BuildParams = [(BS.ByteString, BS.ByteString)]
+
+newtype BuildParams = BuildParams {
+  fromBuildParams :: [(BS.ByteString, BS.ByteString)]
+} deriving (Show, Eq)
+
+newtype AuthCreds = AuthCreds {
+  fromAuthCreds :: (BS.ByteString, BS.ByteString)
+} deriving (Show, Eq)
 
 data Command = JobStatuses
              | JobStatus JobId
@@ -36,7 +43,7 @@ jobIdParser :: String -> ReadM JobId
 jobIdParser = return . T.pack
 
 buildParamParser :: String -> ReadM BuildParams
-buildParamParser = return . mapMaybe parseParam . BS.words . BS.pack
+buildParamParser = return . BuildParams . mapMaybe parseParam . BS.words . BS.pack
 
 parseParam :: BS.ByteString -> Maybe (BS.ByteString, BS.ByteString)
 parseParam s =
@@ -47,7 +54,7 @@ parseParam s =
 authCredsParser :: String -> ReadM (Maybe AuthCreds)
 authCredsParser s = do
   return $ case BS.splitWith ((==) ':') (BS.pack s) of
-    (user:pass:[]) -> Just (user, pass)
+    (user:pass:[]) -> Just (AuthCreds (user, pass))
     _              -> Nothing
 
 buildNumParser :: String -> ReadM (Maybe BuildNum)
@@ -61,7 +68,7 @@ runBuildParser :: Parser Command
 runBuildParser = RunBuild
   <$> argument (str >>= jobIdParser) ( metavar "JOB_ID" )
   <*> argument (str >>= buildParamParser) ( metavar "PARAM=VALUE .."
-                                   <> value []
+                                   <> value (BuildParams [])
                                    <> help "List of parameter/value pairs"
                                    )
 

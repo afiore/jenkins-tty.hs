@@ -3,6 +3,7 @@
 module Jenkins.Client.Types
   ( Env(..)
   , Client(..)
+  , AppError(..)
   , env
   , option
   , manager
@@ -13,20 +14,22 @@ module Jenkins.Client.Types
 
 import Data.Aeson
 import qualified Data.ByteString.Lazy.Internal as LBS
+import qualified Data.ByteString.Char8 as BS
 
 import Control.Monad.Trans
 import Network.HTTP.Client
 import Network.HTTP.Types
 import Options
 
+
 data Env = Env
          { envOpts    :: Options
          , envManager :: Manager
          }
 
-data AppError = HttpError Status Request
-              | JsonError String
-              | ClientError String
+data AppError = HttpError Status Request (Maybe AuthCreds)
+              | JsonError BS.ByteString
+              | ClientError BS.ByteString
               deriving (Show)
 
 newtype Client a = Client {
@@ -40,7 +43,7 @@ instance Monad Client where
     case eV of
       (Right v)  -> runClient (f v) e
       (Left  err)  -> return $ Left err
-  fail msg = Client $ \_ -> return $ Left . ClientError $ msg
+  fail msg = Client $ \_ -> return $ Left . ClientError $ BS.pack msg
 
 instance Functor Client where
   fmap f bl = Client $ \e -> do
@@ -52,8 +55,11 @@ instance MonadIO Client where
     v <- ioAction
     return $ Right v
 
-failJson msg = Client $ \_ -> return $ Left . JsonError $ msg
-failHttp status req = Client $ \_ -> return . Left $ HttpError status req
+failJson msg = Client $ \_ -> return $ Left . JsonError $ BS.pack msg
+
+failHttp status req = Client $ \e -> do
+  let authCreds = optsAuth . envOpts $ e
+  return . Left $ HttpError status req authCreds
 
 env :: Client Env
 env = Client $ \e -> return (Right e)
@@ -72,9 +78,9 @@ getResponseBody req = do
   let status = responseStatus resp
   if (isSuccess status)
   then
-    failHttp status req
-  else
     return $ responseBody resp
+  else
+    failHttp status req
 
 isSuccess :: Status -> Bool
 isSuccess s =

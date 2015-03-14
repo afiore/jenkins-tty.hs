@@ -7,7 +7,6 @@ module Jenkins.Endpoints
   ) where
 
 import qualified Data.Text as T
-import qualified Data.ByteString as BS
 
 import System.FilePath ((</>))
 import Control.Monad.Trans
@@ -31,9 +30,9 @@ getBuild job (BuildNum n) =
   defaultReq ("job" </> T.unpack job </> show n)
 
 runBuild :: T.Text
-         -> [(BS.ByteString, BS.ByteString)] -- ^ Build parameters
+         -> BuildParams
          -> Client Request
-runBuild job params = do
+runBuild job (BuildParams params) = do
   req <- postReq ("job" </> T.unpack job </> "buildWithParameters")
   let q = map (\(k, v) -> (k, (Just v))) params
   return $ setQueryString q req
@@ -53,8 +52,8 @@ defaultReq p = do
       req'     = req { checkStatus = cs }
 
   return $ case mCreds of
-             Just (user, pass) -> applyBasicAuth user pass req'
-             _                 -> req'
+             Just (AuthCreds (user, pass)) -> applyBasicAuth user pass req'
+             _                             -> req'
 
 postReq :: String -> Client Request
 postReq p = do

@@ -1,14 +1,15 @@
 module Main where
 
-import Data.Either
 import Options.Applicative
 
-import Jenkins.Client (handleCmd)
+import qualified Data.ByteString.Char8 as BS
+
+import Jenkins.Client (handleCmd, showError)
 import Jenkins.Client.Types
 import Network.HTTP.Client
 
+import System.IO (stderr)
 import System.Exit
-import System.IO
 
 import Options
 
@@ -22,7 +23,7 @@ main = do
 
       eError <- runClient handleCmd e
       case eError of
-        (Left err) -> hPutStrLn stderr (show err) >> exitFailure
+        (Left err) -> BS.hPutStrLn stderr (showError err) >> exitFailure
         (Right _)  -> exitSuccess
 
   where

@@ -5,9 +5,10 @@ import qualified Data.ByteString as BS
 
 import Jenkins.Client.Types
 import qualified Jenkins.Endpoints as JEP
+import Options (BuildParams(..))
 
 runBuild :: T.Text
-         -> [(BS.ByteString, BS.ByteString)] -- ^ Build parameters
+         -> BuildParams
          -> Client ()
 runBuild name params =
   JEP.runBuild name params >>= getResponseBody >> return ()
