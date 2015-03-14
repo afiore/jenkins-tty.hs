@@ -3,64 +3,96 @@
 module Jenkins.Client.Types
   ( Env(..)
   , Client(..)
-  , runClient
+  , AppError(..)
+  , env
   , option
   , manager
-  , withResponseBody
-  , handlingFailures
+  , getResponseBody
+  , decodeResponse
   ) where
 
 
 import Data.Aeson
 import qualified Data.ByteString.Lazy.Internal as LBS
+import qualified Data.ByteString.Char8 as BS
 
 import Control.Monad.Trans
-import Control.Monad.Reader
-
 import Network.HTTP.Client
+import Network.HTTP.Types
 import Options
+
 
 data Env = Env
          { envOpts    :: Options
          , envManager :: Manager
          }
 
-newtype Client a = Client {
-  fromClient :: ReaderT Env IO a
-} deriving (Monad, MonadIO, MonadReader Env)
+data AppError = HttpError Status Request (Maybe AuthCreds)
+              | JsonError BS.ByteString
+              | ClientError BS.ByteString
+              deriving (Show)
 
-runClient :: Env -> Client a -> IO a
-runClient e c = runReaderT (fromClient c) e
+newtype Client a = Client {
+  runClient :: Env -> IO (Either AppError a)
+}
+
+instance Monad Client where
+  return x = Client $ \_ -> return (Right x)
+  bl >>= f = Client $ \e -> do
+    eV <- runClient bl e
+    case eV of
+      (Right v)  -> runClient (f v) e
+      (Left  err)  -> return $ Left err
+  fail msg = Client $ \_ -> return $ Left . ClientError $ BS.pack msg
+
+instance Functor Client where
+  fmap f bl = Client $ \e -> do
+    eV <- runClient bl e
+    return $ fmap f eV
+
+instance MonadIO Client where
+  liftIO ioAction = Client $ \_ -> do
+    v <- ioAction
+    return $ Right v
+
+failJson msg = Client $ \_ -> return $ Left . JsonError $ BS.pack msg
+
+failHttp status req = Client $ \e -> do
+  let authCreds = optsAuth . envOpts $ e
+  return . Left $ HttpError status req authCreds
+
+env :: Client Env
+env = Client $ \e -> return (Right e)
 
 option :: (Options -> a) -> Client a
-option f = do
-  env <- ask
-  return $ f (envOpts env)
+option f = Client $ \e -> return $ Right . f . envOpts $ e
 
 manager :: Client Manager
-manager = do
-  env <- ask
-  return $ envManager env
+manager = Client $ \e -> return $ Right .  envManager $ e
 
-withResponseBody ::  Request
-                 -> (LBS.ByteString -> IO b)
-                 -> Client b
-withResponseBody req f = do
+getResponseBody :: Request
+                 -> Client LBS.ByteString
+getResponseBody req = do
   m    <- manager
   resp <- liftIO $ httpLbs req m
-  liftIO $ f (responseBody resp)
+  let status = responseStatus resp
+  if (isSuccess status)
+  then
+    return $ responseBody resp
+  else
+    failHttp status req
 
-handlingFailures :: FromJSON a
-                 => Request
-                 -> (a -> IO b)
-                 -> Client b
-handlingFailures req f = do
-  withResponseBody req $ \body -> do
-    failingOnLeft (eitherDecode body) f
+isSuccess :: Status -> Bool
+isSuccess s =
+   case (show . statusCode $ s) of
+     '2':_:_ -> True
+     _       -> False
 
-failingOnLeft :: FromJSON a
-              => Either String a
-              -> (a -> IO b)
-              -> IO b
-failingOnLeft (Right v)     f = f v
-failingOnLeft (Left errMsg) _ =fail $ "Failed parsing JSON " ++ errMsg
+decodeResponse :: FromJSON a
+               => Request
+               -> Client a
+decodeResponse req =  do
+  body <- getResponseBody req
+  case (eitherDecode body) of
+    (Left msg) -> failJson msg
+    (Right v)  -> return v

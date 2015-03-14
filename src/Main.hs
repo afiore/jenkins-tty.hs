@@ -2,19 +2,30 @@ module Main where
 
 import Options.Applicative
 
-import Jenkins.Client (handleCmd)
+import qualified Data.ByteString.Char8 as BS
+
+import Jenkins.Client (handleCmd, showError)
 import Jenkins.Client.Types
 import Network.HTTP.Client
+
+import System.IO (stderr)
+import System.Exit
+
 import Options
 
 main :: IO ()
 main = do
     opts <- execParser handleOpts
     withManager defaultManagerSettings $ \m -> do
-      let env = Env { envOpts    = opts
-                    , envManager = m
-                    }
-      runClient env handleCmd
+      let e = Env { envOpts    = opts
+                  , envManager = m
+                  }
+
+      eError <- runClient handleCmd e
+      case eError of
+        (Left err) -> BS.hPutStrLn stderr (showError err) >> exitFailure
+        (Right _)  -> exitSuccess
+
   where
     handleOpts = info (helper <*> parseOptions)
           ( fullDesc

@@ -41,7 +41,7 @@ instance Render JobStatus where
                             JobSuccess    -> ("✓", Just "0;32")
                             JobFailure    -> ("⨉", Just "0;31")
                             JobInProgress -> ("◷", Just "1;33")
-                            JobAborted    -> ("☐", Just "1;30")
+                            JobAborted    -> ("☐", Nothing)
                             JobUnknown    -> ("?", Nothing)
         colorize code   = "\x1b[0" <> code <> "m" <> glyph <> "\x1b[00m"
     in maybe glyph colorize mColor

@@ -17,19 +17,20 @@ import qualified Jenkins.Endpoints as JEP
 jobStatus :: T.Text
           -> Client JobWithBuilds
 jobStatus name = do
-    env <- ask
-    req <- JEP.getJob name
+    env'                        <- env
+    (JobWithBuildNums job nums) <- JEP.getJob name >>= decodeResponse
 
-    handlingFailures req $ \(JobWithBuildNums job nums) -> do
-      let nums'        = take 10 nums
-          runJobBuild' = runJobBuild env
-      mBuilds <- liftIO $ mapConcurrently runJobBuild' nums'
-      let builds = catMaybes mBuilds
-      return $ JobWithBuilds job builds
+    let nums' = take 10 nums
+    mBuilds <- liftIO $ mapConcurrently (runJobBuild env') nums'
+    let builds = catMaybes mBuilds
+    return $ JobWithBuilds job builds
   where
     runJobBuild :: Env -> BuildNum -> IO (Maybe Build)
     runJobBuild e bn = do
-      runClient e (jobBuild name bn)
+      eBuild <- runClient (jobBuild name bn) e
+      return $ case eBuild of
+                 (Right mBuild) -> mBuild
+                 (Left _)       -> Nothing
 
 -------------------------------------------------------------------------------
 
@@ -37,8 +38,8 @@ jobBuild :: T.Text
          -> BuildNum
          -> Client (Maybe Build)
 jobBuild name n = do
-    req <- JEP.getBuild name n
-    handlingFailures req (return . buildWithRev)
+  rawBuidl <- JEP.getBuild name n >>= decodeResponse
+  return $ buildWithRev rawBuidl
 
 buildWithRev :: RawBuild -> Maybe Build
 buildWithRev (RawBuild n r t d as) =
