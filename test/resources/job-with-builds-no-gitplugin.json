@@ -1,0 +1,55 @@
+{
+  "actions": [
+    {
+      "parameters": [
+        {
+          "name": "APPVERSION",
+          "value": "1.19.23"
+        },
+        {
+          "name": "ENV",
+          "value": "staging"
+        },
+        {
+          "name": "STARTUP_PARAM",
+          "value": "migrate"
+        }
+      ]
+    },
+    {
+      "causes": [
+        {
+          "shortDescription": "Started by user admin",
+          "userId": "admin",
+          "userName": "admin"
+        }
+      ]
+    },
+    {}
+  ],
+  "artifacts": [
+    {
+      "displayPath": "dbimport",
+      "fileName": "dbimport",
+      "relativePath": "dbimport"
+    }
+  ],
+  "building": false,
+  "description": null,
+  "duration": 90996,
+  "estimatedDuration": 93940,
+  "executor": null,
+  "fullDisplayName": "deploy-to-env #156",
+  "id": "2015-03-17_12-14-38",
+  "keepLog": false,
+  "number": 156,
+  "result": "SUCCESS",
+  "timestamp": 1426594478473,
+  "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/156/",
+  "builtOn": "",
+  "changeSet": {
+    "items": [],
+    "kind": null
+  },
+  "culprits": []
+}

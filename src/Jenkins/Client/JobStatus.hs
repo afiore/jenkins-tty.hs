@@ -19,7 +19,6 @@ jobStatus :: T.Text
 jobStatus name = do
     env'                        <- env
     (JobWithBuildNums job nums) <- JEP.getJob name >>= decodeResponse
-
     let nums' = take 10 nums
     mBuilds <- liftIO $ mapConcurrently (runJobBuild env') nums'
     let builds = catMaybes mBuilds
@@ -38,8 +37,8 @@ jobBuild :: T.Text
          -> BuildNum
          -> Client (Maybe Build)
 jobBuild name n = do
-  rawBuidl <- JEP.getBuild name n >>= decodeResponse
-  return $ buildWithRev rawBuidl
+  rawBuild <- JEP.getBuild name n >>= decodeResponse
+  return $ buildWithRev rawBuild
 
 buildWithRev :: RawBuild -> Maybe Build
 buildWithRev (RawBuild n r t d as) =
