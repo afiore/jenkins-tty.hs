@@ -162,7 +162,7 @@ data Action = LastBuiltRev SHA [Branch]
 
 instance FromJSON Action where
   parseJSON (Object v) =
-    case (lastBuiltRevPresent v, buildParamsPresent v) of
+    case (hasKey v lbrKey, hasKey v bpKey) of
       (False, True) -> do
         v' <- v .: bpKey
         Params <$> parseJSON v'
@@ -175,17 +175,13 @@ instance FromJSON Action where
 lbrKey :: T.Text
 lbrKey = "lastBuiltRevision"
 
-lastBuiltRevPresent :: Object -> Bool
-lastBuiltRevPresent v =
-  case HM.lookup lbrKey v of
-    Just (Object _) -> True
-    _               -> False
-
 bpKey :: T.Text
 bpKey = "parameters"
 
-buildParamsPresent :: Object -> Bool
-buildParamsPresent = undefined
+hasKey :: Object -> T.Text -> Bool
+hasKey o k = case HM.lookup k o of
+               Just (Object _) -> True
+               _               -> False
 
 -------------------------------------------------------------------------------
 
