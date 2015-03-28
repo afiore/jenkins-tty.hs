@@ -1,7 +1,6 @@
 module Options
   ( Command(..)
   , Options(..)
-  , BuildParams(..)
   , AuthCreds(..)
   , parseOptions
   ) where
@@ -15,10 +14,6 @@ import Data.Maybe (mapMaybe)
 import Jenkins.Types
 
 type JobId       = T.Text
-
-newtype BuildParams = BuildParams {
-  fromBuildParams :: [(BS.ByteString, BS.ByteString)]
-} deriving (Show, Eq)
 
 newtype AuthCreds = AuthCreds {
   fromAuthCreds :: (BS.ByteString, BS.ByteString)
@@ -47,15 +42,15 @@ buildParamParser = return . BuildParams . mapMaybe parseParam . BS.words . BS.pa
 
 parseParam :: BS.ByteString -> Maybe (BS.ByteString, BS.ByteString)
 parseParam s =
-  case (BS.break ((==) '=') s) of
+  case BS.break ((==) '=') s of
       (_, "") -> Nothing
       (k, v)  -> Just (k, BS.drop 1 v)
 
 authCredsParser :: String -> ReadM (Maybe AuthCreds)
-authCredsParser s = do
+authCredsParser s =
   return $ case BS.splitWith ((==) ':') (BS.pack s) of
-    (user:pass:[]) -> Just (AuthCreds (user, pass))
-    _              -> Nothing
+    [user, pass] -> Just (AuthCreds (user, pass))
+    _            -> Nothing
 
 buildNumParser :: String -> ReadM (Maybe BuildNum)
 buildNumParser = pure . Just . BuildNum . read

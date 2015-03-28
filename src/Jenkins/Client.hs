@@ -48,9 +48,9 @@ showError (HttpError status req mCreds) =
 
 showCurlCmd :: Request -> Maybe AuthCreds -> BS.ByteString
 showCurlCmd req auth =
-  let method' = if (method req) == methodPost then Just "-XPOST" else Nothing
-      proto   = if (secure req) then "https://" else "http://"
-      port'   = if (port req == 80) then "" else ":" <> (show $ port req)
+  let method' = if method req == methodPost then Just "-XPOST" else Nothing
+      proto   = if secure req then "https://" else "http://"
+      port'   = if port req == 80 then "" else ":" <> show (port req)
       url     = Just (proto <> host req <> BS.pack port' <> path req <> queryString req)
   in BS.unwords $ catMaybes [ Just "curl"
                             , method'

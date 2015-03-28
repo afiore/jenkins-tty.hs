@@ -8,13 +8,16 @@ module Jenkins.Types
   , Branch(..)
   , BuildNum(..)
   , Build(..)
+  , BuildParams(..)
   , BuildRev(..)
   , Action(..)
   ) where
 
 import Control.Applicative
 
-import qualified Data.Text as T
+import qualified Data.Text          as T
+import qualified Data.Text.Encoding as T
+import qualified Data.ByteString.Char8 as BS
 import qualified Data.HashMap.Strict as HM
 
 import Control.Monad
@@ -25,8 +28,6 @@ import Data.DateTime as DT
 import Data.Monoid ((<>))
 
 import Jenkins.Render
-
--------------------------------------------------------------------------------
 
 data JobStatus = JobSuccess
                | JobFailure
@@ -95,8 +96,8 @@ instance FromJSON JobList where
   parseJSON _          = fail "Cannot parse JobList"
 
 instance Render JobList where
-  renderTTY = T.unlines . (map renderTTY) . fromJobList
-  render    = T.unlines . (map render) . fromJobList
+  renderTTY = T.unlines . map renderTTY . fromJobList
+  render    = T.unlines . map render . fromJobList
 
 -------------------------------------------------------------------------------
 
@@ -126,8 +127,8 @@ instance FromJSON Branch where
   parseJSON _ = fail "Cannot parse Branch"
 
 instance Render Branch where
-  renderTTY (Branch b) = padR 25 $ dropPrefix $ b
-  render (Branch b) = dropPrefix $ b
+  renderTTY (Branch b) = padR 25 $ dropPrefix b
+  render (Branch b) = dropPrefix b
 
 dropPrefix :: T.Text -> T.Text
 dropPrefix b =
@@ -137,17 +138,38 @@ dropPrefix b =
 
 -------------------------------------------------------------------------------
 
+newtype BuildParams = BuildParams {
+  fromBuildParams :: [(BS.ByteString, BS.ByteString)]
+} deriving (Show, Eq)
+
+instance FromJSON BuildParams where
+  parseJSON (Object v) = return . BuildParams $ HM.foldlWithKey' collect [] v
+  parseJSON _          = fail "Cannot parse BuildParams"
+
+collect :: [(BS.ByteString, BS.ByteString)]
+              -> T.Text
+              -> Value
+              -> [(BS.ByteString, BS.ByteString)]
+collect acc k (String v) = acc ++ [(T.encodeUtf8 k, T.encodeUtf8 v)]
+collect _   _ _          = []
+
+-------------------------------------------------------------------------------
+
 data Action = LastBuiltRev SHA [Branch]
+            | Params BuildParams
             | OtherAction
             deriving (Show, Eq)
 
 instance FromJSON Action where
-  parseJSON (Object v) = do
-    if lastBuiltRevPresent v
-    then do
-      vv <- v .: lbrKey
-      LastBuiltRev <$> vv .: "SHA1" <*> vv .: "branch"
-    else return OtherAction
+  parseJSON (Object v) =
+    case (lastBuiltRevPresent v, buildParamsPresent v) of
+      (False, True) -> do
+        v' <- v .: bpKey
+        Params <$> parseJSON v'
+      (True, False) -> do
+        v' <- v .: lbrKey
+        LastBuiltRev <$> v' .: "SHA1" <*> v' .: "branch"
+      _          -> return OtherAction
   parseJSON _ = fail "Cannot parse LastBuiltRevision"
 
 lbrKey :: T.Text
@@ -158,6 +180,12 @@ lastBuiltRevPresent v =
   case HM.lookup lbrKey v of
     Just (Object _) -> True
     _               -> False
+
+bpKey :: T.Text
+bpKey = "parameters"
+
+buildParamsPresent :: Object -> Bool
+buildParamsPresent = undefined
 
 -------------------------------------------------------------------------------
 
@@ -182,7 +210,7 @@ data RawBuild = RawBuild
 
 instance FromJSON RawBuild where
   parseJSON (Object v) = do
-    res <- (v .: "result")
+    res <- v .: "result"
     RawBuild                <$>
       parseJSON (Object v)  <*>
       result res            <*>
