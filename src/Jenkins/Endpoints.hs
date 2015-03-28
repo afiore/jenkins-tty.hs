@@ -10,6 +10,7 @@ import qualified Data.Text as T
 
 import System.FilePath ((</>))
 import Control.Monad.Trans
+import Control.Arrow
 
 import Network.HTTP.Client (Request(..), parseUrl, setQueryString, applyBasicAuth)
 import Network.HTTP.Types
@@ -34,7 +35,7 @@ runBuild :: T.Text
          -> Client Request
 runBuild job (BuildParams params) = do
   req <- postReq ("job" </> T.unpack job </> "buildWithParameters")
-  let q = map (\(k, v) -> (k, Just v)) params
+  let q = map (second Just) params
   return $ setQueryString q req
 
 buildLog :: T.Text -> BuildNum -> Client Request
@@ -47,10 +48,8 @@ defaultReq p = do
   baseUri <- option optsBaseUri
   mCreds  <- option optsAuth
   req     <- liftIO . parseUrl $ baseUri </> p </> apiSuffix
-
   let cs _ _ _ = Nothing
       req'     = req { checkStatus = cs }
-
   return $ case mCreds of
              Just (AuthCreds (user, pass)) -> applyBasicAuth user pass req'
              _                             -> req'

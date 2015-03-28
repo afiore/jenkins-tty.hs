@@ -42,13 +42,13 @@ buildParamParser = return . BuildParams . mapMaybe parseParam . BS.words . BS.pa
 
 parseParam :: BS.ByteString -> Maybe (BS.ByteString, BS.ByteString)
 parseParam s =
-  case BS.break ((==) '=') s of
+  case BS.break (== '=') s of
       (_, "") -> Nothing
       (k, v)  -> Just (k, BS.drop 1 v)
 
 authCredsParser :: String -> ReadM (Maybe AuthCreds)
 authCredsParser s =
-  return $ case BS.splitWith ((==) ':') (BS.pack s) of
+  return $ case BS.splitWith (== ':') (BS.pack s) of
     [user, pass] -> Just (AuthCreds (user, pass))
     _            -> Nothing
 
