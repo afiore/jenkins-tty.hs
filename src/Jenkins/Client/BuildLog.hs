@@ -17,7 +17,7 @@ buildLog :: T.Text
 buildLog name (Just bn) = putLog name bn
 buildLog name Nothing   = do
   (JobWithBuildNums _ nums) <- JEP.getJob name >>= decodeResponse
-  if (null nums)
+  if null nums
   then
     fail "This job has no builds yet"
   else

@@ -34,12 +34,12 @@ runBuild :: T.Text
          -> Client Request
 runBuild job (BuildParams params) = do
   req <- postReq ("job" </> T.unpack job </> "buildWithParameters")
-  let q = map (\(k, v) -> (k, (Just v))) params
+  let q = map (\(k, v) -> (k, Just v)) params
   return $ setQueryString q req
 
 buildLog :: T.Text -> BuildNum -> Client Request
 buildLog job (BuildNum n) = do
-  let p = ("job" </> T.unpack job </> show n </> "logText" </> "progressiveText")
+  let p = "job" </> T.unpack job </> show n </> "logText" </> "progressiveText"
   defaultReq p
 
 defaultReq :: String -> Client Request
