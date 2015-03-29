@@ -3,6 +3,7 @@ module Jenkins.Client.JobStatus
   ) where
 
 import qualified Data.Text as T
+import qualified Data.List as L
 import Data.Maybe (catMaybes)
 
 import Control.Concurrent.Async
@@ -42,10 +43,20 @@ jobBuild name n = do
   return $ buildWithRev rawBuidl
 
 buildWithRev :: RawBuild -> Maybe Build
-buildWithRev (RawBuild n r t d as) =
-  fmap (Build n r t d) (findLastBuiltRev as)
+buildWithRev (RawBuild n r t d actions) =
+  case parseActions actions of
+    (Just bp, mbr@(Just _)) -> Just (Build n r t d bp mbr)
+    (Just bp, Nothing)      -> Just (Build n r t d bp Nothing)
+    _                       -> Nothing
 
-findLastBuiltRev :: [Action] -> Maybe BuildRev
-findLastBuiltRev ((LastBuiltRev sha (branch:_)):_) = Just (BuildRev (sha, branch))
-findLastBuiltRev (_:rest) = findLastBuiltRev rest
-findLastBuiltRev [] = Nothing
+type MParamsWithBuildRev = (Maybe BuildParams, Maybe BuildRev)
+
+parseActions :: [Action] -> MParamsWithBuildRev
+parseActions =
+    L.foldl f (Nothing, Nothing)
+  where
+    f :: MParamsWithBuildRev -> Action -> MParamsWithBuildRev
+    f (Nothing, mLbr) (Params bp)              = (Just bp, mLbr)
+    f (mPb, Nothing) (LastBuiltRev sha (br:_)) = (mPb, Just (BuildRev (sha, br)))
+    f tup            _                         = tup
+

@@ -235,23 +235,22 @@ data Build = Build
            , buildResult    :: JobStatus
            , buildTimestamp :: Integer
            , buildDuration  :: Integer
-           , buildRevision  :: BuildRev
+           , buildParams    :: BuildParams
+           , buildRevision  :: Maybe BuildRev
            } deriving (Show, Eq)
 
 instance Render Build where
-  renderTTY b = T.unwords [ renderTTY (buildResult b)
-                          , renderTTY (buildNumber b)
-                          , showDateTime . buildTimestamp $ b
-                          , showDuration . buildDuration $ b
-                          , renderTTY (buildRevision b)
-                          ]
+  renderTTY b = T.unwords $ [ renderTTY (buildResult b)
+                            , renderTTY (buildNumber b)
+                            , showDateTime . buildTimestamp $ b
+                            , showDuration . buildDuration $ b
+                            ] <> maybe [] (\br -> [renderTTY br]) (buildRevision b)
 
-  render b = joinTxt [ render (buildResult b)
-                     , render (buildNumber b)
-                     , showDateTime . buildTimestamp $ b
-                     , showDuration . buildDuration $ b
-                     , render (buildRevision b)
-                     ]
+  render b = joinTxt $ [ render (buildResult b)
+                       , render (buildNumber b)
+                       , showDateTime . buildTimestamp $ b
+                       , showDuration . buildDuration $ b
+                       ] <> maybe [] (\br -> [render br]) (buildRevision b)
 
 showDateTime :: Integer -> T.Text
 showDateTime timestamp =
@@ -267,3 +266,45 @@ showDuration d =
   in T.unwords [ (padL 2 . T.pack . show $ mins) <> "m"
                , (padL 2 . T.pack . show $ secs) <> "s"
                ]
+
+--------------------------------------------------------------------------------
+
+data BuildParamDef = StringParam T.Text T.Text (Maybe T.Text)
+                   | TextParam T.Text T.Text (Maybe T.Text)
+                   | PasswordParam T.Text T.Text (Maybe T.Text)
+                   | ChoiceParam T.Text T.Text [T.Text] (Maybe T.Text)
+                   | JobParam T.Text (Maybe T.Text)
+                   | RunParam T.Text T.Text (Maybe T.Text)
+                   | FileParam T.Text (Maybe T.Text)
+                   | UnknownParamType
+                   deriving (Show)
+
+instance FromJSON BuildParamDef where
+  parseJSON (Object v) = do
+    paramType <- v .: "type"
+    case paramType of
+      (String "StringParameterDefinition") ->
+         StringParam <$> v .: "name"
+                     <*> defaultValue v
+                     <*> v .: "description"
+      (String "TextParameterDefinition") ->
+         TextParam <$> v .: "name"
+                   <*> defaultValue v
+                   <*> v .: "description"
+      (String "PasswordParameterDefinition") ->
+         PasswordParam <$> v .: "name"
+                       <*> defaultValue v
+                       <*> v .: "description"
+      (String "ChoiceParameterDefinition") ->
+         ChoiceParam <$> v .: "name"
+                     <*> defaultValue v
+                     <*> v .: "choice"
+                     <*> v .: "description"
+      _                                    ->
+        return UnknownParamType
+
+
+defaultValue :: Object -> Parser T.Text
+defaultValue o = do
+  v <- o .: "defaultValue"
+  v .: "value"
