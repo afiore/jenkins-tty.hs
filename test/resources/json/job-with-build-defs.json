@@ -1,0 +1,568 @@
+{
+  "actions": [
+    {
+      "parameterDefinitions": [
+        {
+          "defaultParameterValue": {
+            "value": ""
+          },
+          "description": "The version to deploy. This should be either a semver tag (i.e. 1.0.3) or 'latest'",
+          "name": "APPVERSION",
+          "type": "StringParameterDefinition"
+        },
+        {
+          "defaultParameterValue": {
+            "value": "demo"
+          },
+          "description": "The environment to deploy to.",
+          "name": "ENV",
+          "type": "ChoiceParameterDefinition",
+          "choices": [
+            "demo",
+            "qa",
+            "dev",
+            "staging"
+          ]
+        },
+        {
+          "defaultParameterValue": {
+            "value": "none"
+          },
+          "description": "The startup parameter to pass to the deployment script\n\n  seed - run db:migrate and db:seed as part of the deployment\n  migrate - run db:migrate as part of the deployment\n  none - just deploy the application",
+          "name": "STARTUP_PARAM",
+          "type": "ChoiceParameterDefinition",
+          "choices": [
+            "none",
+            "seed",
+            "migrate"
+          ]
+        },
+        {
+          "defaultParameterValue": null,
+          "description": "Location of the CSV file to use for data import. If this file is not included, the data import will not be performed",
+          "name": "dbimport",
+          "type": "FileParameterDefinition"
+        }
+      ]
+    },
+    {}
+  ],
+  "description": "",
+  "displayName": "deploy-to-env",
+  "displayNameOrNull": null,
+  "name": "deploy-to-env",
+  "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/",
+  "buildable": true,
+  "builds": [
+    {
+      "number": 158,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/158/"
+    },
+    {
+      "number": 157,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/157/"
+    },
+    {
+      "number": 156,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/156/"
+    },
+    {
+      "number": 155,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/155/"
+    },
+    {
+      "number": 154,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/154/"
+    },
+    {
+      "number": 153,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/153/"
+    },
+    {
+      "number": 152,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/152/"
+    },
+    {
+      "number": 151,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/151/"
+    },
+    {
+      "number": 150,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/150/"
+    },
+    {
+      "number": 149,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/149/"
+    },
+    {
+      "number": 148,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/148/"
+    },
+    {
+      "number": 147,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/147/"
+    },
+    {
+      "number": 146,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/146/"
+    },
+    {
+      "number": 145,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/145/"
+    },
+    {
+      "number": 144,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/144/"
+    },
+    {
+      "number": 143,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/143/"
+    },
+    {
+      "number": 142,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/142/"
+    },
+    {
+      "number": 141,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/141/"
+    },
+    {
+      "number": 140,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/140/"
+    },
+    {
+      "number": 139,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/139/"
+    },
+    {
+      "number": 138,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/138/"
+    },
+    {
+      "number": 137,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/137/"
+    },
+    {
+      "number": 136,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/136/"
+    },
+    {
+      "number": 135,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/135/"
+    },
+    {
+      "number": 134,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/134/"
+    },
+    {
+      "number": 133,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/133/"
+    },
+    {
+      "number": 132,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/132/"
+    },
+    {
+      "number": 131,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/131/"
+    },
+    {
+      "number": 130,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/130/"
+    },
+    {
+      "number": 129,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/129/"
+    },
+    {
+      "number": 128,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/128/"
+    },
+    {
+      "number": 127,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/127/"
+    },
+    {
+      "number": 126,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/126/"
+    },
+    {
+      "number": 125,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/125/"
+    },
+    {
+      "number": 124,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/124/"
+    },
+    {
+      "number": 123,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/123/"
+    },
+    {
+      "number": 122,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/122/"
+    },
+    {
+      "number": 121,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/121/"
+    },
+    {
+      "number": 120,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/120/"
+    },
+    {
+      "number": 119,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/119/"
+    },
+    {
+      "number": 118,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/118/"
+    },
+    {
+      "number": 117,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/117/"
+    },
+    {
+      "number": 116,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/116/"
+    },
+    {
+      "number": 115,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/115/"
+    },
+    {
+      "number": 114,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/114/"
+    },
+    {
+      "number": 113,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/113/"
+    },
+    {
+      "number": 112,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/112/"
+    },
+    {
+      "number": 111,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/111/"
+    },
+    {
+      "number": 110,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/110/"
+    },
+    {
+      "number": 109,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/109/"
+    },
+    {
+      "number": 108,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/108/"
+    },
+    {
+      "number": 107,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/107/"
+    },
+    {
+      "number": 106,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/106/"
+    },
+    {
+      "number": 105,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/105/"
+    },
+    {
+      "number": 104,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/104/"
+    },
+    {
+      "number": 103,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/103/"
+    },
+    {
+      "number": 102,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/102/"
+    },
+    {
+      "number": 101,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/101/"
+    },
+    {
+      "number": 100,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/100/"
+    },
+    {
+      "number": 99,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/99/"
+    },
+    {
+      "number": 98,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/98/"
+    },
+    {
+      "number": 97,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/97/"
+    },
+    {
+      "number": 96,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/96/"
+    },
+    {
+      "number": 95,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/95/"
+    },
+    {
+      "number": 94,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/94/"
+    },
+    {
+      "number": 93,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/93/"
+    },
+    {
+      "number": 92,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/92/"
+    },
+    {
+      "number": 91,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/91/"
+    },
+    {
+      "number": 90,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/90/"
+    },
+    {
+      "number": 89,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/89/"
+    },
+    {
+      "number": 88,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/88/"
+    },
+    {
+      "number": 87,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/87/"
+    },
+    {
+      "number": 86,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/86/"
+    },
+    {
+      "number": 85,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/85/"
+    },
+    {
+      "number": 84,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/84/"
+    },
+    {
+      "number": 83,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/83/"
+    },
+    {
+      "number": 82,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/82/"
+    },
+    {
+      "number": 81,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/81/"
+    },
+    {
+      "number": 80,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/80/"
+    },
+    {
+      "number": 79,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/79/"
+    },
+    {
+      "number": 78,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/78/"
+    },
+    {
+      "number": 77,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/77/"
+    },
+    {
+      "number": 76,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/76/"
+    },
+    {
+      "number": 75,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/75/"
+    },
+    {
+      "number": 74,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/74/"
+    },
+    {
+      "number": 73,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/73/"
+    },
+    {
+      "number": 72,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/72/"
+    },
+    {
+      "number": 71,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/71/"
+    },
+    {
+      "number": 70,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/70/"
+    },
+    {
+      "number": 69,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/69/"
+    },
+    {
+      "number": 68,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/68/"
+    },
+    {
+      "number": 67,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/67/"
+    },
+    {
+      "number": 66,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/66/"
+    },
+    {
+      "number": 65,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/65/"
+    },
+    {
+      "number": 64,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/64/"
+    },
+    {
+      "number": 63,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/63/"
+    },
+    {
+      "number": 62,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/62/"
+    },
+    {
+      "number": 61,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/61/"
+    },
+    {
+      "number": 60,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/60/"
+    },
+    {
+      "number": 59,
+      "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/59/"
+    }
+  ],
+  "color": "blue",
+  "firstBuild": {
+    "number": 1,
+    "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/1/"
+  },
+  "healthReport": [
+    {
+      "description": "Build stability: No recent builds failed.",
+      "iconClassName": "icon-health-80plus",
+      "iconUrl": "health-80plus.png",
+      "score": 100
+    }
+  ],
+  "inQueue": false,
+  "keepDependencies": false,
+  "lastBuild": {
+    "number": 158,
+    "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/158/"
+  },
+  "lastCompletedBuild": {
+    "number": 158,
+    "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/158/"
+  },
+  "lastFailedBuild": {
+    "number": 111,
+    "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/111/"
+  },
+  "lastStableBuild": {
+    "number": 158,
+    "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/158/"
+  },
+  "lastSuccessfulBuild": {
+    "number": 158,
+    "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/158/"
+  },
+  "lastUnstableBuild": null,
+  "lastUnsuccessfulBuild": {
+    "number": 119,
+    "url": "http://jenkins.pq.dsd.io/job/deploy-to-env/119/"
+  },
+  "nextBuildNumber": 159,
+  "property": [
+    {},
+    {},
+    {
+      "notifyAborted": false,
+      "notifyBackToNormal": false,
+      "notifyFailure": false,
+      "notifyNotBuilt": false,
+      "notifySuccess": false,
+      "notifyUnstable": false,
+      "room": "",
+      "startNotification": false
+    },
+    {
+      "parameterDefinitions": [
+        {
+          "defaultParameterValue": {
+            "name": "APPVERSION",
+            "value": ""
+          },
+          "description": "The version to deploy. This should be either a semver tag (i.e. 1.0.3) or 'latest'",
+          "name": "APPVERSION",
+          "type": "StringParameterDefinition"
+        },
+        {
+          "defaultParameterValue": {
+            "name": "ENV",
+            "value": "demo"
+          },
+          "description": "The environment to deploy to.",
+          "name": "ENV",
+          "type": "ChoiceParameterDefinition",
+          "choices": [
+            "demo",
+            "qa",
+            "dev",
+            "staging"
+          ]
+        },
+        {
+          "defaultParameterValue": {
+            "name": "STARTUP_PARAM",
+            "value": "none"
+          },
+          "description": "The startup parameter to pass to the deployment script\n\n  seed - run db:migrate and db:seed as part of the deployment\n  migrate - run db:migrate as part of the deployment\n  none - just deploy the application",
+          "name": "STARTUP_PARAM",
+          "type": "ChoiceParameterDefinition",
+          "choices": [
+            "none",
+            "seed",
+            "migrate"
+          ]
+        },
+        {
+          "defaultParameterValue": null,
+          "description": "Location of the CSV file to use for data import. If this file is not included, the data import will not be performed",
+          "name": "dbimport",
+          "type": "FileParameterDefinition"
+        }
+      ]
+    },
+    {},
+    {}
+  ],
+  "queueItem": null,
+  "concurrentBuild": false,
+  "downstreamProjects": [],
+  "scm": {},
+  "upstreamProjects": []
+}

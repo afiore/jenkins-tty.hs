@@ -273,36 +273,29 @@ data BuildParamDef = StringParam T.Text T.Text (Maybe T.Text)
                    | TextParam T.Text T.Text (Maybe T.Text)
                    | PasswordParam T.Text T.Text (Maybe T.Text)
                    | ChoiceParam T.Text T.Text [T.Text] (Maybe T.Text)
-                   | JobParam T.Text (Maybe T.Text)
+                   | BoolParam T.Text T.Text (Maybe T.Text)
                    | RunParam T.Text T.Text (Maybe T.Text)
                    | FileParam T.Text (Maybe T.Text)
-                   | UnknownParamType
+                   | UnknownParam T.Text
                    deriving (Show)
 
 instance FromJSON BuildParamDef where
   parseJSON (Object v) = do
     paramType <- v .: "type"
     case paramType of
-      (String "StringParameterDefinition") ->
-         StringParam <$> v .: "name"
-                     <*> defaultValue v
-                     <*> v .: "description"
-      (String "TextParameterDefinition") ->
-         TextParam <$> v .: "name"
-                   <*> defaultValue v
-                   <*> v .: "description"
-      (String "PasswordParameterDefinition") ->
-         PasswordParam <$> v .: "name"
-                       <*> defaultValue v
-                       <*> v .: "description"
-      (String "ChoiceParameterDefinition") ->
-         ChoiceParam <$> v .: "name"
-                     <*> defaultValue v
-                     <*> v .: "choice"
-                     <*> v .: "description"
-      _                                    ->
-        return UnknownParamType
+      (String "StringParameterDefinition")   -> parseParam StringParam v
+      (String "TextParameterDefinition")     -> parseParam TextParam v
+      (String "PasswordParameterDefinition") -> parseParam PasswordParam v
+      (String "BooleanParameterDefinition")  -> parseParam BoolParam v
+      (String "ChoiceParameterDefinition")   -> ChoiceParam <$> v .: "name" <*> defaultValue v <*> v .: "choice" <*> v .: "description"
+      (String "RunParameterDefinition")      -> RunParam    <$> v .: "name" <*> v .: "project" <*> v .: "description"
+      (String "RunParameterDefinition")      -> RunParam    <$> v .: "name" <*> v .: "project" <*> v .: "description"
+      (String t)                             -> return (UnknownParam t)
 
+parseParam :: (T.Text -> T.Text -> Maybe T.Text -> BuildParamDef) -> Object -> Parser BuildParamDef
+parseParam f o =  f <$> o .: "name"
+                    <*> defaultValue o
+                    <*> o .: "description"
 
 defaultValue :: Object -> Parser T.Text
 defaultValue o = do
