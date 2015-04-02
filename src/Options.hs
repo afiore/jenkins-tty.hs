@@ -13,7 +13,7 @@ import Data.Maybe (mapMaybe)
 
 import Jenkins.Types
 
-type JobId       = T.Text
+type JobId = T.Text
 
 newtype AuthCreds = AuthCreds {
   fromAuthCreds :: (BS.ByteString, BS.ByteString)
@@ -21,6 +21,7 @@ newtype AuthCreds = AuthCreds {
 
 data Command = JobStatuses
              | JobStatus JobId
+             | ListBuildParams JobId
              | RunBuild JobId BuildParams
              | BuildLog JobId (Maybe BuildNum)
              deriving (Show, Eq)
@@ -67,6 +68,10 @@ runBuildParser = RunBuild
                                    <> help "List of parameter/value pairs"
                                    )
 
+buildParamsDefsParser :: Parser Command
+buildParamsDefsParser = ListBuildParams
+  <$> argument (str >>= jobIdParser) ( metavar "JOB_ID" )
+
 buildLogParser :: Parser Command
 buildLogParser = BuildLog
   <$> argument (str >>= jobIdParser) ( metavar "JOB_ID" )
@@ -90,6 +95,7 @@ parseOptions = Options
         (  command "jobs" jobStatusesParserInfo
         <> command "job" jobStatusParserInfo
         <> command "build" runBuildParserInfo
+        <> command "build-params" buildParamsInfo
         <> command "log" buildLogParserInfo
         )
 
@@ -104,6 +110,10 @@ jobStatusParserInfo =
 runBuildParserInfo :: ParserInfo Command
 runBuildParserInfo =
   parserInfo runBuildParser "build a given job"
+
+buildParamsInfo :: ParserInfo Command
+buildParamsInfo =
+  parserInfo buildParamsDefsParser "list build parameters for a given job"
 
 buildLogParserInfo :: ParserInfo Command
 buildLogParserInfo =

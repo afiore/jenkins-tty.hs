@@ -16,14 +16,14 @@ parseResource res = do
   return $ eitherDecode fbody
 
 test = do
-  describe "JobList" $ do
+  describe "JobList" $
     it "parses a job list" $ do
       jobs <- parseResource "job-statuses.json"
-      (fmap fromJobList jobs) `shouldBe` Right [ Job "success-app" JobSuccess
+      fmap fromJobList jobs `shouldBe` Right [ Job "success-app" JobSuccess
                                                , Job "failure-app" JobFailure
                                                , Job "in-progress-app" JobInProgress
                                                ]
-  describe "JobWithBuildNums" $ do
+  describe "JobWithBuildNums" $
     it "parses a Job with a list of build numbers" $ do
       jwbs <- parseResource "job-with-builds.json"
       jwbs `shouldBe` Right (JobWithBuildNums
@@ -31,7 +31,7 @@ test = do
                                (map BuildNum (reverse [1..5])))
 
   describe "RawBuild" $ do
-    context "when build is completed" $ do
+    context "when build is completed" $
       it "parses a RawBuild" $ do
         let actions = [ OtherAction
                       , OtherAction
@@ -43,15 +43,15 @@ test = do
                       ]
 
         rawBuild <- parseResource "raw-build.json"
-        rawBuild `shouldBe` Right (RawBuild
+        rawBuild `shouldBe` Right RawBuild
                                   { rawBuildNumber = BuildNum 25
                                   , rawBuildResult = JobSuccess
                                   , rawBuildTimestamp = 1423653757651
                                   , rawBuildDuration = 87212
                                   , rawBuildActions  = actions
-                                  })
+                                  }
 
-    context "when build is in progress" $ do
+    context "when build is in progress" $
       it "parses a rawbuild with the InProgress result" $ do
         let actions =[ OtherAction
                      , OtherAction
@@ -60,10 +60,10 @@ test = do
                      ]
 
         rawBuild <- parseResource "build-in-progress.json"
-        rawBuild `shouldBe` Right (RawBuild
-                                  { rawBuildNumber = BuildNum 8
-                                  , rawBuildResult = JobInProgress
+        rawBuild `shouldBe` Right RawBuild
+                                  { rawBuildNumber    = BuildNum 8
+                                  , rawBuildResult    = JobInProgress
                                   , rawBuildTimestamp = 1425215442169
-                                  , rawBuildDuration = 0
-                                  , rawBuildActions = actions
-                                  })
+                                  , rawBuildDuration  = 0
+                                  , rawBuildActions   = actions
+                                  }

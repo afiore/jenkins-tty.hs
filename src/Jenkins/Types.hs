@@ -291,6 +291,8 @@ instance FromJSON BuildParamDef where
       (String "RunParameterDefinition")      -> RunParam    <$> v .: "name" <*> v .: "project" <*> v .: "description"
       (String "FileParameterDefinition")     -> FileParam   <$> v .: "name" <*> v .: "description"
       (String t)                             -> return (UnknownParam t)
+      _                                      -> fail "Cannot parse BuildParamDef"
+  parseJSON _          = fail "Cannot parse BuildParamDef"
 
 parseParam :: (T.Text -> T.Text -> Maybe T.Text -> BuildParamDef)
            -> Object
