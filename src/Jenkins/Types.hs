@@ -289,10 +289,12 @@ instance FromJSON BuildParamDef where
       (String "BooleanParameterDefinition")  -> parseParam BoolParam v
       (String "ChoiceParameterDefinition")   -> ChoiceParam <$> v .: "name" <*> defaultValue v <*> v .: "choice" <*> v .: "description"
       (String "RunParameterDefinition")      -> RunParam    <$> v .: "name" <*> v .: "project" <*> v .: "description"
-      (String "RunParameterDefinition")      -> RunParam    <$> v .: "name" <*> v .: "project" <*> v .: "description"
+      (String "FileParameterDefinition")     -> FileParam   <$> v .: "name" <*> v .: "description"
       (String t)                             -> return (UnknownParam t)
 
-parseParam :: (T.Text -> T.Text -> Maybe T.Text -> BuildParamDef) -> Object -> Parser BuildParamDef
+parseParam :: (T.Text -> T.Text -> Maybe T.Text -> BuildParamDef)
+           -> Object
+           -> Parser BuildParamDef
 parseParam f o =  f <$> o .: "name"
                     <*> defaultValue o
                     <*> o .: "description"
