@@ -32,7 +32,7 @@ A command-specific synopsis can be obtained by running a command with no argumen
 Jenkins-tty can be built using Haskell's packaging system [cabal](https://www.haskell.org/cabal/).
 From the project directory, run:
 
-    cabal init sandbox && cabal install
-    
+    cabal sandbox init && cabal install
+
 You should now find the jenkins-tty executable in the `.cabal-sandbox/bin` folder.
 Alternatively, pre-compiled binaries are [also available](https://github.com/afiore/jenkins-tty.hs/releases).
